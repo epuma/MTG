@@ -19,7 +19,7 @@ def downloadStuff(name, location):
 
 if 'version.json' not in stuff:
     downloadStuff('version.json', versionURL)
-    print('You don't have a version file')
+    print('You do not have a version file')
 elif 'AllSets-x.json' not in stuff:
     downloadStuff('AllSets-x.json', setURL)
 else:
