@@ -20,5 +20,7 @@ def printSets(magic_obj):
         print item, d[item]
 
 #printSets(a)
-print len(a.keys())
+#print len(a.keys())
+print a.flat
+print len(a.flat)
 #print a["LEA"]["Air Elemental"].printings
