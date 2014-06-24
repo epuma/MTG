@@ -1,6 +1,7 @@
 from Classes import Magic
 import json
 from pprint import pprint
+
 json_data = open('AllSets-x.json')
 data = json.load(json_data)
 json_data.close()
@@ -18,7 +19,6 @@ def printSets(magic_obj):
     for item in sorted_d:
         print item, d[item]
 
-
-printSets(a)
-
+#printSets(a)
+print len(a.keys())
 #print a["LEA"]["Air Elemental"].printings
