@@ -6,3 +6,7 @@ class Card(dict):
         for k,v in dict.iteritems():
             setattr(self, k, v)
             self.attrlist.append(k)
+
+    def printCard(self):
+        for item in self.attrlist:
+            print item + ': ', getattr(self, item)

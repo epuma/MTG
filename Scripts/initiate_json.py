@@ -13,21 +13,14 @@ def printCardData(magic_obj):
     search = raw_input("Enter name of card (Hit RETURN to quit) ") or default_search
     if search != '':
         if search in magic_obj.flatList:
-            for item in magic_obj.flatCards[search].attrlist:
-                print item + ': ', getattr(magic_obj.flatCards[search], item)
+            magic_obj.flatCards[search].printCard()
         else:
             print 'Could not find card: "' + search + '" Please try your search again.'
     if search == '':
         print 'Search Cancelled'
 
-#printCardData(a)
+printCardData(a)
 
-a.printSets()
-
-
-
+#a.printSets()
 #print len(a.keys())
-#print a.flat
-#print len(a.flat)
-#print 'Ancestral Recall' in a.flat
 #print a["Limited Edition Alpha"]["Air Elemental"].printings
