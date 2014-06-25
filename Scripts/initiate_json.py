@@ -34,7 +34,7 @@ def printCardData(magic_obj):
 
 printCardData(a)
 
-#printSets(a)
+printSets(a)
 #print len(a.keys())
 #print a.flat
 #print len(a.flat)
