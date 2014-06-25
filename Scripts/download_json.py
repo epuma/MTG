@@ -5,7 +5,7 @@ from os import listdir
 from distutils.version import StrictVersion
 
 """This only works for Python Version 2.7 for now.
-This checks the version and if its newer then downloads the file"""
+This checks the version and if its newer then downloads the file and displays changes since the previous version"""
 
 stuff = listdir('.')
 versionURL = 'http://mtgjson.com/json/version.json'
