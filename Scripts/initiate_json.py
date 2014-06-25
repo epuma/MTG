@@ -19,8 +19,22 @@ def printSets(magic_obj):
     for item in sorted_d:
         print item, d[item]
 
+#It asks for a card and prints all of the information for it
+def printCardData():
+    default_search = ''
+    search = raw_input("Enter name of card (Hit RETURN to quit) ") or default_search
+    if search != '':
+        if search in a.flatList:
+            for item in a.flatCards[search].attrlist:
+                print item + ': ', getattr(a.flatCards[search], item)
+    if search == '':
+        print 'Search Cancelled'
+
+printCardData()
+
 #printSets(a)
 #print len(a.keys())
-print a.flat
-print len(a.flat)
+#print a.flat
+#print len(a.flat)
+#print 'Ancestral Recall' in a.flat
 #print a["LEA"]["Air Elemental"].printings
