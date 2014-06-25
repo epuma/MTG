@@ -1,12 +1,11 @@
+import os
 from Classes import Magic
-import json
 from pprint import pprint
 
-json_data = open('AllSets-x.json')
-data = json.load(json_data)
-json_data.close()
+json_file = os.path.abspath('AllSets-x.json')
 
-a = Magic(data)
+
+a = Magic(json_file)
 
 #It asks for a card and prints all of the information for it
 def printCardData(magic_obj):
@@ -25,8 +24,10 @@ def printCardData(magic_obj):
 
 a.printSets()
 
+
+
 #print len(a.keys())
 #print a.flat
 #print len(a.flat)
 #print 'Ancestral Recall' in a.flat
-#print a["LEA"]["Air Elemental"].printings
+#print a["Limited Edition Alpha"]["Air Elemental"].printings
