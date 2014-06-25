@@ -29,3 +29,13 @@ class Magic(dict):
 
         for item in sorted_d:
             print item, d[item]
+
+    #When called this method will ask for user input, if Card is found then its information will be printed, otherwise it will tell you to try again
+    def findCard(self, search = ''):
+        if search != '':
+            if search in self.flatList:
+                return self.flatCards[search].printCard()
+            else:
+                print 'Could not find card: "' + search + '" Please try your search again.'
+        else:
+            print 'Please enter a Card Name to Search!'

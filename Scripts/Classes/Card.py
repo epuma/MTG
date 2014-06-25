@@ -7,6 +7,7 @@ class Card(dict):
             setattr(self, k, v)
             self.attrlist.append(k)
 
+    #This method is for displaying all the information of the card
     def printCard(self):
         for item in self.attrlist:
             print item + ': ', getattr(self, item)
