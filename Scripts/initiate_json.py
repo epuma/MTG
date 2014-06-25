@@ -8,17 +8,6 @@ json_data.close()
 
 a = Magic(data)
 
-#prints Set names and releaseDates
-
-def printSets(magic_obj):
-    d = {}
-    for k,v in magic_obj.iteritems():
-        d[v.name] = v.releaseDate
-    sorted_d = sorted(d, key=lambda key: d[key])
-
-    for item in sorted_d:
-        print item, d[item]
-
 #It asks for a card and prints all of the information for it
 def printCardData(magic_obj):
     default_search = ''
@@ -32,9 +21,10 @@ def printCardData(magic_obj):
     if search == '':
         print 'Search Cancelled'
 
-printCardData(a)
+#printCardData(a)
 
-printSets(a)
+a.printSets()
+
 #print len(a.keys())
 #print a.flat
 #print len(a.flat)

@@ -14,3 +14,13 @@ class Magic(dict):
                 flat_cards[stuff["name"]] = Card(stuff)
         self.flatList = sorted(list(set(flat_list)))
         self.flatCards = flat_cards
+
+    #prints Set names and releaseDates
+    def printSets(self):
+        d = {}
+        for k,v in self.iteritems():
+            d[v.name] = v.releaseDate
+        sorted_d = sorted(d, key=lambda key: d[key])
+
+        for item in sorted_d:
+            print item, d[item]
