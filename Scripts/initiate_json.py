@@ -1,9 +1,6 @@
-import os
 from Classes import Magic
-from pprint import pprint
 
-json_file = os.path.abspath('AllSets-x.json')
-
+json_file = 'AllSets-x.json'
 
 a = Magic(json_file)
 
