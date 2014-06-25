@@ -20,17 +20,19 @@ def printSets(magic_obj):
         print item, d[item]
 
 #It asks for a card and prints all of the information for it
-def printCardData():
+def printCardData(magic_obj):
     default_search = ''
     search = raw_input("Enter name of card (Hit RETURN to quit) ") or default_search
     if search != '':
-        if search in a.flatList:
-            for item in a.flatCards[search].attrlist:
-                print item + ': ', getattr(a.flatCards[search], item)
+        if search in magic_obj.flatList:
+            for item in magic_obj.flatCards[search].attrlist:
+                print item + ': ', getattr(magic_obj.flatCards[search], item)
+        else:
+            print 'Could not find card: "' + search + '" Please try your search again.'
     if search == '':
         print 'Search Cancelled'
 
-printCardData()
+printCardData(a)
 
 #printSets(a)
 #print len(a.keys())
