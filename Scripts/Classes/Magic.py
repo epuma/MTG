@@ -15,8 +15,8 @@ class Magic(dict):
         for k,v in dict.iteritems():
             self[v["name"]] = Edition(v)
             for stuff in v["cards"]:
-                flat_list.append(stuff["name"])
-                flat_cards[stuff["name"]] = Card(stuff)
+                flat_list.append(stuff["name"].replace(u'\xc6', 'AE'))
+                flat_cards[stuff["name"].replace(u'\xc6', 'AE')] = Card(stuff)
         self.flatList = sorted(list(set(flat_list)))
         self.flatCards = flat_cards
 

@@ -8,4 +8,4 @@ class Edition(dict):
             if k != "cards":
                 setattr(self, k, v)
         for item in dict["cards"]:
-            self[item["name"]] = Card(item)
+            self[item["name"].replace(u'\xc6', 'AE')] = Card(item)
