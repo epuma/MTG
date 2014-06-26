@@ -6,6 +6,7 @@ class Card(dict):
         for k,v in dict.iteritems():
             setattr(self, k, v)
             self.attrlist.append(k)
+        
 
     #This method is for displaying all the information of the card
     def printCard(self):

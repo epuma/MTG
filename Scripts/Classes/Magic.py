@@ -39,3 +39,5 @@ class Magic(dict):
                 print 'Could not find card: "' + search + '" Please try your search again.'
         else:
             print 'Please enter a Card Name to Search!'
+
+    
