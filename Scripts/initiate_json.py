@@ -1,25 +1,29 @@
 from Classes import Magic
+from Classes import lib
+from Classes import Collection
 
 json_file = 'AllSets-x.json'
 
 a = Magic(json_file)
 
 #this next section starts on creating a collection give a MAGIC Object and writing it to a JSON
-#import io, json
-#b = {}
-#
-#for sets in a.keys():
-#    b[sets] = {}
-#    for k,v in a[sets].iteritems():
-#        b[sets].update({k:0})
-#
-#with open('eric_collection.json', 'w') as outfile:
-#    json.dump(b, outfile)
 
 
 
+b = Collection.Collection()
+#b.newCollection(a, 'eric_collection.json')
+b.load('eric_collection.json')
 
-#a.findCard('AEther Spellbomb')
-#a.printSets()
+b.addCard('Limited Edition Alpha', 'Black Lotus', 1)
+
+b.save('eric_collection.json')
+
+print b.getQuantity('Limited Edition Alpha', 'Black Lotus')
+
+print b
+
+#print a.findCard('AEther Spellbomb')
+
+#print a
 #print len(a.keys())
 #print a["Limited Edition Alpha"]["Air Elemental"].printings
