@@ -9,7 +9,6 @@ a = Magic(json_file)
 #this next section starts on creating a collection give a MAGIC Object and writing it to a JSON
 
 
-
 b = Collection.Collection()
 #b.newCollection(a, 'eric_collection.json')
 b.load('eric_collection.json')
