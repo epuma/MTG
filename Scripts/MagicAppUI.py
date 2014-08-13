@@ -18,20 +18,43 @@ from PIL import Image, ImageTk
 from urllib2 import urlopen
 import io
 
-card_name = 'Ancestral Recall'
-url = 'http://mtgimage.com/card/' + card_name + '.jpg'
-try:
+def get_image(name):
+	url = 'http://mtgimage.com/card/' + name + '.jpg'
 	image_bytes = urlopen(url).read()
 	data_stream = io.BytesIO(image_bytes)
 	pil_image = Image.open(data_stream)
-#	w, h = pil_image.size
 	pil_image = pil_image.resize((240, 340), Image.ANTIALIAS)
 	tk_image = ImageTk.PhotoImage(pil_image)
-	card_image = Label(image_frame, image=tk_image)
-except:
-	card_image = Label(image_frame, text='Error: Card Not Found')
+	return tk_image
+
+def change_image(event=None):
+	global tk_image
+	tk_image = get_image(card_name.get())
+	card_image.config(image=tk_image)
+
+
+card_name = StringVar()
+card_name.set('Card Name Here')
+
+card_name_entry = Entry(root, textvariable=card_name)
+card_name_entry.pack()
+
+enter_button = Button(root, text='Enter', command=change_image)
+enter_button.pack()
+
+root.bind('<Return>', change_image)
+
+tk_image = get_image('Black Lotus')
+card_image = Label(image_frame, image=tk_image)
+
+
+
+
+
 
 #Places the image in the frame
 card_image.place(relx=0.5, rely=0.5, anchor=CENTER)
 
+#This makes the window appear on the top
+root.call('wm', 'attributes', '.', '-topmost', '1')
 root.mainloop()
