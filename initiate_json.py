@@ -12,6 +12,7 @@ a = Magic(json_file)
 b = Collection.Collection()
 #b.newCollection(a, 'eric_collection.json')
 b.load('eric_collection.json')
+b.updateCollection(a)
 
 b.addCard('Limited Edition Alpha', 'Black Lotus', 1)
 
