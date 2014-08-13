@@ -19,7 +19,7 @@ def downloadStuff(name, location):
 		e = open(name, 'wb')
 		e.write(content)
 		e.close
-		print "Download Completed!"
+		print "Download of %s Completed!" %(name)
 	except urllib2.URLError:
 		print "Could not download %s. Please check your internet connection." %(name)
 

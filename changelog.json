@@ -1,5 +1,84 @@
 [
 	{
+		"version": "2.8.8",
+		"when": "2014-07-28",
+		"changes": [
+			"Updated legalities now that M15 is officially released."
+		],
+		"updatedSetFiles" : ["10E-x","2ED-x","3ED-x","4ED-x","5DN-x","5ED-x","6ED-x","7ED-x","8ED-x","9ED-x","ALA-x","APC-x","ARC-x","ATQ-x","AVR-x","BNG-x","BRB-x","BTD-x","C13-x","CHR-x","CMD-x","CNS-x","DD2-x","DDD-x","DDF-x","DDG-x","DDH-x","DDI-x","DDJ-x","DDK-x","DDL-x","DDM-x","DKA-x","DPA-x","DRK-x","DST-x","HOP-x","INV-x","ISD-x","JOU-x","LEA-x","LEB-x","LGN-x","LRW-x","M10-x","M11-x","M12-x","M13-x","M15-x","MBS-x","MD1-x","ME4-x","MIR-x","MMA-x","MOR-x","MRD-x","ODY-x","ONS-x","PC2-x","PLC-x","POR-x","RAV-x","ROE-x","S99-x","SHM-x","SOM-x","STH-x","THS-x","TMP-x","TSB-x","UDS-x","USG-x","V12-x","WTH-x","WWK-x","ZEN-x"]
+	},
+	{
+		"version": "2.8.7",
+		"when": "2014-07-22",
+		"changes": [
+			"FUT, PLC, TSB: Cards that are timeshifted now have a 'timeshifted' field set to true."
+		],
+		"updatedSetFiles" : ["FUT","FUT-x","PLC","PLC-x","TSB","TSB-x"]
+	},
+	{
+		"version": "2.8.6",
+		"when": "2014-07-15",
+		"changes": [
+			"DGM, DKA, ISD: Cards with split and double-faced layouts now have foreign names."
+		],
+		"updatedSetFiles" : ["DGM-x","DKA-x","ISD-x"]
+	},
+	{
+		"version": "2.8.5",
+		"when": "2014-07-14",
+		"changes": [
+			"Fixed the foreign language names for several cards so they don't have extra whitespace in them."
+		],
+		"updatedSetFiles" : ["BNG-x","GTC-x","JUD-x","NPH-x","ONS-x","PC2-x","PD3-x","SOM-x","TSP-x","UNH-x"]
+	},
+	{
+		"version": "2.8.4",
+		"when": "2014-07-13",
+		"changes": [
+			"Added AllSetFiles.zip and AllSetFiles-x.zip for those that want all files individually, more easily."
+		]
+	},
+	{
+		"version": "2.8.3",
+		"when": "2014-07-12",
+		"changes": [
+			"Commander's Arsenal had the wrong set code. It is now correctly CM1 instead of CMA.",
+			"Phrexian mana symbols with colors have been reversed and now read {W/P} instead of {P/W} in order to follow the official rule 107.4f",
+			"VAN: Fixed a minor issue with the Royal Assasin Avatar",
+			"HHO: Fixed type for Yule Ooze"
+		],
+		"updatedSetFiles" : ["HHO","HHO-x","MD1","MD1-x","NPH","NPH-x","VAN","VAN-x"],
+		"newSetFiles" : ["CM1", "CM1-x"],
+		"removedSetFiles" : ["CMA", "CMA-x"]
+	},
+	{
+		"version": "2.8.2",
+		"when": "2014-07-12",
+		"changes": [
+			"Updated all cards in all sets to the latest Oracle text, rulings, legalities and foreign names."
+		],
+		"updatedSetFiles" : ["10E","10E-x","2ED","2ED-x","3ED","3ED-x","4ED","4ED-x","5DN","5DN-x","5ED","5ED-x","6ED","6ED-x","7ED","7ED-x","8ED","8ED-x","9ED","9ED-x","ALA","ALA-x","ALL","ALL-x","APC-x","ARB","ARB-x","ARC-x","ARN","ARN-x","ATQ","ATQ-x","AVR","AVR-x","BNG","BNG-x","BOK","BOK-x","BRB-x","BTD","BTD-x","C13","C13-x","CHK","CHK-x","CHR","CHR-x","CMA-x","CMD","CMD-x","CNS","CNS-x","CON","CON-x","CSP","CSP-x","DD2","DD2-x","DDC-x","DDD","DDD-x","DDE","DDE-x","DDF","DDF-x","DDG","DDG-x","DDH","DDH-x","DDI","DDI-x","DDJ-x","DDL","DDL-x","DGM","DGM-x","DIS","DIS-x","DRB-x","DRK-x","DST","DST-x","EVE","EVE-x","EVG-x","EXO-x","FEM","FEM-x","FUT","FUT-x","GPT","GPT-x","GTC-x","H09-x","HML","HML-x","HOP","HOP-x","ICE","ICE-x","INV","INV-x","JOU-x","JUD","JUD-x","LEA","LEA-x","LEB","LEB-x","LEG","LEG-x","LGN","LGN-x","LRW","LRW-x","M10","M10-x","M11","M11-x","M12","M12-x","M13","M13-x","MBS","MBS-x","ME2","ME2-x","ME3","ME3-x","ME4","ME4-x","MED","MED-x","MIR","MIR-x","MMA","MMA-x","MMQ","MMQ-x","MOR","MOR-x","MRD","MRD-x","NMS","NMS-x","ODY","ODY-x","ONS","ONS-x","PC2","PC2-x","PCY","PCY-x","PD2","PD2-x","PD3","PD3-x","PLC","PLC-x","PLS","PLS-x","PO2","PO2-x","POR-x","PPR-x","PTK-x","RAV","RAV-x","ROE","ROE-x","RTR-x","S00-x","S99-x","SCG","SCG-x","SHM","SHM-x","SOK","SOK-x","SOM","SOM-x","STH","STH-x","THS-x","TMP","TMP-x","TOR-x","TSB","TSB-x","TSP","TSP-x","UDS","UDS-x","ULG","ULG-x","USG","USG-x","V09-x","V10-x","V11-x","V12-x","VIS-x","VMA","VMA-x","WTH","WTH-x","ZEN","ZEN-x"]
+	},
+	{
+		"version": "2.8.1",
+		"when": "2014-07-10",
+		"changes": [
+			"Planeswalkers now use UTF8 minus symbol (−) for negative loyalty abilities instead of a regular ASCII hyphon (-). This matches how Gatherer presents these abilities."
+		],
+		"updatedSetFiles" : ["ALA","ALA-x","AVR","AVR-x","BNG","BNG-x","CMD","CMD-x","CNS","CNS-x","CON","CON-x","DD2","DD2-x","DDD","DDD-x","DDF","DDF-x","DDH","DDH-x","DDI","DDI-x","DDK","DDK-x","DDM","DDM-x","DGM","DGM-x","DKA","DKA-x","GTC","GTC-x","ISD","ISD-x","JOU","JOU-x","LRW","LRW-x","M10","M10-x","M11","M11-x","M12","M12-x","M13","M13-x","M14","M14-x","MBS","MBS-x","MD1","MD1-x","MMA","MMA-x","NPH","NPH-x","ROE","ROE-x","RTR","RTR-x","SOM","SOM-x","THS","THS-x","V13","V13-x","VMA","VMA-x","WWK","WWK-x","ZEN","ZEN-x"]
+	},
+	{
+		"version": "2.8.0",
+		"when": "2014-07-08",
+		"changes": [
+			"Added set: Magic 2015 Core Set (M15)",
+			"Conspiracy now has the set type 'conspiracy' instead of 'expansion'",
+			"VAN: Some cards were missing the ' Avatar' suffix in their names."
+		],
+		"newSetFiles" : ["M15", "M15-x"],
+		"updatedSetFiles" : ["10E-x","2ED-x","3ED-x","4ED-x","5DN-x","5ED-x","6ED-x","7ED-x","8ED-x","9ED-x","ALA-x","APC-x","ARC-x","ARN-x","ATH-x","ATQ-x","AVR-x","BNG-x","BRB-x","BTD-x","C13-x","CHK-x","CHR-x","CMD-x","CNS","CNS-x","CON-x","DD2-x","DDC-x","DDD-x","DDE-x","DDF-x","DDG-x","DDH-x","DDI-x","DDJ-x","DDK-x","DDL-x","DDM-x","DGM-x","DKA-x","DKM-x","DPA-x","DRB-x","DRK-x","DST-x","EVG-x","GPT-x","GTC-x","H09-x","HOP-x","ICE-x","INV-x","ISD-x","ITP-x","JOU-x","JUD-x","LEA-x","LEB-x","LGN-x","LRW-x","M10-x","M11-x","M12-x","M13-x","M14-x","MBS-x","MD1-x","ME2-x","ME3-x","ME4-x","MED-x","MIR-x","MMA-x","MMQ-x","MOR-x","MRD-x","NPH-x","ODY-x","ONS-x","PC2-x","PD2-x","PD3-x","PLC-x","PO2-x","POR-x","PTK-x","RAV-x","ROE-x","RQS-x","RTR-x","S00-x","S99-x","SHM-x","SOM-x","STH-x","THS-x","TMP-x","TOR-x","TSB-x","TSP-x","UDS-x","UGL-x","ULG-x","UNH-x","USG-x","V12-x","VAN","VAN-x","WTH-x","WWK-x","ZEN-x"]
+	},
+	{
 		"version": "2.7.2",
 		"when": "2014-06-24",
 		"changes": [

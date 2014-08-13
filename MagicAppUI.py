@@ -15,7 +15,7 @@ root.config(menu = menubar)
 
 def internet_on():
     try:
-        response=urllib2.urlopen('http://74.125.228.100',timeout=1)
+        response=urllib2.urlopen('http://74.125.228.100',timeout=10)
         return True
     except urllib2.URLError as err: pass
     return False
