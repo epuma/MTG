@@ -26,7 +26,7 @@ def save_file():
 
 ################################ Commands are above #############################################
 
-def createMenu(root):
+def create_menu(root):
 	
 	menubar = Menu(root)
 

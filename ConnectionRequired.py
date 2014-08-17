@@ -87,17 +87,17 @@ def download_json():
 
 ######################### Download Image ##############################
 
-def get_image(name):
-	try:
-		url = 'http://mtgimage.com/card/' + name + '.jpg'
-		image_bytes = urllib2.urlopen(url).read()
-		data_stream = io.BytesIO(image_bytes)
-		pil_image = Image.open(data_stream)
-		w,h = pil_image.size
-#		pil_image = pil_image.resize((240, 340), Image.ANTIALIAS)
-		tk_image = ImageTk.PhotoImage(pil_image)
-	except:
-		tk_image = 'Card not found'
+def get_image(name, wt, ht):
+	#try:
+	url = 'http://mtgimage.com/card/' + name + '.jpg'
+	image_bytes = urllib2.urlopen(url).read()
+	data_stream = io.BytesIO(image_bytes)
+	pil_image = Image.open(data_stream)
+	w,h = pil_image.size
+	pil_image = pil_image.resize((wt, ht), Image.ANTIALIAS)
+	tk_image = ImageTk.PhotoImage(pil_image)
+	#	except:
+		#tk_image = 'Card not found'
 	return tk_image
 
 
