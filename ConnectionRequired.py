@@ -94,7 +94,7 @@ def get_image(name):
 		data_stream = io.BytesIO(image_bytes)
 		pil_image = Image.open(data_stream)
 		w,h = pil_image.size
-		pil_image = pil_image.resize((240, 340), Image.ANTIALIAS)
+#		pil_image = pil_image.resize((240, 340), Image.ANTIALIAS)
 		tk_image = ImageTk.PhotoImage(pil_image)
 	except:
 		tk_image = 'Card not found'

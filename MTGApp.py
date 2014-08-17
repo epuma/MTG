@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 try:
 	from Tkinter import *
 except ImportError:
@@ -6,6 +8,7 @@ except ImportError:
 from Menu import createMenu
 from ConnectionRequired import is_internet_on, get_image, download_json
 from Classes import Magic
+import time
 
 
 def change_image(event=None):
@@ -52,8 +55,9 @@ else:
 	print 'Download Failed, lack of Internet Connection'
 
 print 'loading...'
-json_file = 'JSON Files/AllSets-x.json'
-mtg_object = Magic(json_file)
+#json_file = 'JSON Files/AllSets-x.json'
+#mtg_object = Magic(json_file)
+time.sleep(5)
 print 'DONE!'
 splash_screen.destroy()
 
@@ -66,7 +70,7 @@ menubar = createMenu(root)
 root.config(menu = menubar)
 
 #Create a frame to place the card image in
-image_frame = Frame(root, width = 240, height = 340)
+image_frame = Frame(root, width = 480, height = 680)
 image_frame.pack()
 
 card_name = StringVar()
@@ -97,5 +101,10 @@ root.call('wm', 'attributes', '.', '-topmost', '1')
 
 #Sets the minimum size of the window to exactly fit all widgets
 root.update()
-root.minsize(root.winfo_width(), root.winfo_height())
+winWt = root.winfo_width()
+winHt = root.winfo_height()
+winXPos = (scrnWt / 2) - (winWt / 2)
+winYPos = (scrnHt / 2) - (winHt / 2)
+root.geometry('+%d+%d' % (winXPos, winYPos))
+root.minsize(winWt, winHt)
 root.mainloop()
