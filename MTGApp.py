@@ -125,7 +125,7 @@ if is_internet_on():
 	#Places the image in the frame
 	card_image.place(relx=0.5, rely=0.5, anchor=CENTER)
 else:
-	no_internet = Label(root, text = 'No Internet! Please Check Your Internet Connection!')
+	no_internet = Label(root, text = 'No Internet!')
 	no_internet.pack()
 
 #Sets the minimum size of the window to exactly fit all widgets
