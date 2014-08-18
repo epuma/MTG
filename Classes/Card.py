@@ -34,6 +34,23 @@ class Card(object):
 		self.multiverseid = None
 		self.imageName = None
 		
+		self.names = None
+		self.loyalty = None
+		self.variations = None
+		self.watermark = None
+		self.border = None
+		self.timeshifted = None
+		self.hand = None
+		self.life = None
+		self.reserved = None
+		
+		self.rulings = None
+		self.foreignNames = None
+		self.printings = None
+		self.originalText = None
+		self.originalType = None
+		self.legalities = None
+		
 		for k,v in data.iteritems():
 			new_v = clean_unicode(v)
 			setattr(self, k, new_v)
