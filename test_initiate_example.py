@@ -17,6 +17,5 @@ a = Magic(json_file)
 
 #print a.findCard('AEther Spellbomb')
 
-print a
-#print len(a.keys())
+print sorted(a.data.keys())
 #print a["Limited Edition Alpha"]["Air Elemental"].printings

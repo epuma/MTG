@@ -87,9 +87,9 @@ def download_json():
 
 ######################### Download Image ##############################
 
-def get_image(name, wt, ht):
+def get_image(edition, name, wt, ht):
 	#try:
-	url = 'http://mtgimage.com/card/' + name + '.jpg'
+	url = 'http://mtgimage.com/setname/' + edition + '/' + name + '.jpg'
 	image_bytes = urllib2.urlopen(url).read()
 	data_stream = io.BytesIO(image_bytes)
 	pil_image = Image.open(data_stream)

@@ -13,7 +13,10 @@ import os
 
 def change_image(event=None):
 	global tk_image
-	tk_image = get_image(card_name.get(), img_wt, img_ht)
+	edition = edition_variable.get()
+	card = card_variable.get()
+	card_name = mtg_object.data[edition].data[card].imageName
+	tk_image = get_image(edition, card_name, img_wt, img_ht)
 	if isinstance(tk_image, basestring):
 		card_image.config(image="", text=tk_image)
 	else:
@@ -63,38 +66,60 @@ else:
 	print 'Download Failed, lack of Internet Connection'
 
 print 'loading...'
-#json_file = 'JSON Files/AllSets-x.json'
-#mtg_object = Magic(json_file)
-time.sleep(5)
+json_file = 'JSON Files/AllSets-x.json'
+mtg_object = Magic(json_file)
+#time.sleep(5)
 print 'DONE!'
 splash_screen.destroy()
 
 root.deiconify()
 ###################################################
 
-
-
 menubar = create_menu(root)
 root.config(menu = menubar)
 
-#Create a frame to place the card image in
-image_frame = Frame(root, width = img_wt, height = img_ht)
-image_frame.pack()
+#See if I can do optionMenus
+def update_options(*args):
+	cards = sorted(mtg_object.data[edition_variable.get()].data.keys())
+	card_variable.set(cards[0])
+	menu = card_option_menu['menu']
+	menu.delete(0, 'end')
+	for card in cards:
+		menu.add_command(label = card, command=lambda card=card: card_variable.set(card))
 
-card_name = StringVar()
 
-card_name_entry = Entry(root, textvariable=card_name)
-card_name_entry.focus()
-card_name_entry.pack()
+edition_options = sorted(mtg_object.data.keys())
+
+edition_variable = StringVar()
+card_variable = StringVar()
+edition_variable.trace('w', update_options)
+edition_option_menu = OptionMenu(root, edition_variable, *edition_options)
+card_option_menu = OptionMenu(root, card_variable, '')
+edition_variable.set(edition_options[0])
+edition_option_menu.pack()
+card_option_menu.pack()
+
+
+
+#card_name = StringVar()
+#
+#card_name_entry = Entry(root, textvariable=card_name)
+#card_name_entry.focus()
+#card_name_entry.pack()
 
 enter_button = Button(root, text='Enter', command=change_image)
 enter_button.pack()
 
 root.bind('<Return>', change_image)
 
+#Create a frame to place the card image in
+image_frame = Frame(root, width = img_wt, height = img_ht)
+image_frame.pack()
+
+
 
 if is_internet_on():
-	tk_image = get_image('Black Lotus', img_wt, img_ht)
+	tk_image = get_image('Limited Edition Alpha', 'Black Lotus', img_wt, img_ht)
 	card_image = Label(image_frame, image=tk_image)
 
 	#Places the image in the frame
