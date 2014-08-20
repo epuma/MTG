@@ -10,6 +10,7 @@ from ConnectionRequired import is_internet_on, get_image, download_json
 from Classes import Magic
 import time
 import os
+from Prices import get_prices
 
 def change_image(event=None):
 	global tk_image
@@ -19,8 +20,18 @@ def change_image(event=None):
 	tk_image = get_image(edition, card_name, img_wt, img_ht)
 	if isinstance(tk_image, basestring):
 		card_image.config(image="", text=tk_image)
+		high_price.config(text='N/A')
+		medium_price.config(text='N/A')
+		low_price.config(text='N/A')
 	else:
 		card_image.config(image=tk_image)
+		update_prices(card, edition)
+
+def update_prices(card, edition):
+	prices = get_prices(card, edition)
+	high_price.config(text='$'+ prices[0])
+	medium_price.config(text='$'+ prices[1])
+	low_price.config(text='$'+ prices[2])
 
 #initialize the app window
 root = Tk()
@@ -77,6 +88,8 @@ root.deiconify()
 
 menubar = create_menu(root)
 root.config(menu = menubar)
+search_frame = Frame(root)
+search_frame.grid(row=0, column=0)
 
 #See if I can do optionMenus
 def update_options(*args):
@@ -93,11 +106,11 @@ edition_options = sorted(mtg_object.data.keys())
 edition_variable = StringVar()
 card_variable = StringVar()
 edition_variable.trace('w', update_options)
-edition_option_menu = OptionMenu(root, edition_variable, *edition_options)
-card_option_menu = OptionMenu(root, card_variable, '')
+edition_option_menu = OptionMenu(search_frame, edition_variable, *edition_options)
+card_option_menu = OptionMenu(search_frame, card_variable, '')
 edition_variable.set(edition_options[0])
-edition_option_menu.pack()
-card_option_menu.pack()
+edition_option_menu.grid(row=0, column=0)
+card_option_menu.grid(row=0, column=1)
 
 
 
@@ -107,16 +120,14 @@ card_option_menu.pack()
 #card_name_entry.focus()
 #card_name_entry.pack()
 
-enter_button = Button(root, text='Enter', command=change_image)
-enter_button.pack()
+enter_button = Button(search_frame, text='Enter', command=change_image)
+enter_button.grid(row=0, column=2)
 
 root.bind('<Return>', change_image)
 
 #Create a frame to place the card image in
 image_frame = Frame(root, width = img_wt, height = img_ht)
-image_frame.pack()
-
-
+image_frame.grid(row=2,column=0)
 
 if is_internet_on():
 	tk_image = get_image('Limited Edition Alpha', 'Black Lotus', img_wt, img_ht)
@@ -127,6 +138,26 @@ if is_internet_on():
 else:
 	no_internet = Label(root, text = 'No Internet!')
 	no_internet.pack()
+
+price_frame = Frame(root)
+price_frame.grid(row=1, column=0)
+
+high_label = Label(price_frame, text='TCG Price High')
+medium_label = Label(price_frame, text='TCG Price Medium')
+low_label = Label(price_frame, text='TCG Price Low')
+
+high_price = Label(price_frame, text='N/A')
+medium_price = Label(price_frame, text='N/A')
+low_price = Label(price_frame, text='N/A')
+
+
+high_label.grid(row=0, column=0)
+medium_label.grid(row=1, column=0)
+low_label.grid(row=2, column=0)
+
+high_price.grid(row=0, column=1)
+medium_price.grid(row=1, column=1)
+low_price.grid(row=2, column=1)
 
 #Sets the minimum size of the window to exactly fit all widgets
 root.update()
