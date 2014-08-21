@@ -58,7 +58,6 @@ w,h = pil_image.size
 pil_image = pil_image.resize((w/2, h/2), Image.ANTIALIAS)
 splash_image = ImageTk.PhotoImage(pil_image)
 
-#splash screen???
 root.withdraw()
 splash_screen = Toplevel()
 splash_screen.overrideredirect(1)
@@ -87,6 +86,7 @@ print 'DONE!'
 splash_screen.destroy()
 
 root.deiconify()
+
 ###################################################
 #Initiate Menu
 menubar = create_menu(root)
@@ -96,7 +96,7 @@ root.config(menu = menubar)
 search_frame = Frame(root)
 search_frame.grid(row=0, column=0)
 
-#See if I can do optionMenus
+#OptionMenus
 def update_options(*args):
 	cards = sorted(mtg_object.data[edition_variable.get()].data.keys())
 	card_variable.set(cards[0])
@@ -123,7 +123,7 @@ enter_button.grid(row=0, column=2)
 root.bind('<Return>', change_image)
 
 
-#Create Image Frame to place the card image in
+#Image Frame to place the card image in
 image_frame = Frame(root, width = img_wt+10, height = img_ht+10, bd=10, relief=RIDGE)
 image_frame.grid(row=2,column=0, padx=10, pady=10, sticky=N)
 
