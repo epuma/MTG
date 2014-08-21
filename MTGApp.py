@@ -129,7 +129,7 @@ root.bind('<Return>', change_image)
 
 
 #Create Image Frame to place the card image in
-image_frame = Frame(root, width = img_wt, height = img_ht)
+image_frame = Frame(root, width = img_wt+10, height = img_ht+10, bd=10, relief=RIDGE)
 image_frame.grid(row=2,column=0, padx=10, pady=10, sticky=N)
 
 if is_internet_on():
