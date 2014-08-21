@@ -169,17 +169,33 @@ low_price.grid(row=2, column=1, sticky=E)
 scroll_frame = Frame(root, width = img_wt, height = img_ht)
 scroll_frame.grid(row=2, column=1, padx=10, pady=10, sticky=N)
 
+class AutoScrollbar(Scrollbar):
+    # a scrollbar that hides itself if it's not needed.  only
+    # works if you use the grid geometry manager.
+    def set(self, lo, hi):
+        if float(lo) <= 0.0 and float(hi) >= 1.0:
+            # grid_remove is currently missing from Tkinter!
+            self.tk.call("grid", "remove", self)
+        else:
+            self.grid()
+        Scrollbar.set(self, lo, hi)
+    def pack(self, **kw):
+        raise TclError, "cannot use pack with this widget"
+    def place(self, **kw):
+        raise TclError, "cannot use place with this widget"
+
 def scroll_function(event):
     canvas.configure(scrollregion=canvas.bbox("all"),width=img_wt,height=img_ht)
 
 #scrollbar!
 canvas = Canvas(scroll_frame)
 info_frame = Frame(canvas)
-myscrollbar = Scrollbar(scroll_frame, orient="vertical", command=canvas.yview)
-canvas.configure(yscrollcommand=myscrollbar.set)
+info_scrollbar = AutoScrollbar(scroll_frame)
+info_scrollbar.config(command=canvas.yview)
+canvas.configure(yscrollcommand=info_scrollbar.set)
 
-myscrollbar.pack(side="right", fill="y")
-canvas.pack(side="left")
+info_scrollbar.grid(row=0, column=1, sticky=N+S)
+canvas.grid(row=0, column=0)
 canvas.create_window((0,0), window=info_frame, anchor='nw')
 info_frame.bind("<Configure>", scroll_function)
 
@@ -262,8 +278,6 @@ info_labels = [
 			   Label(info_frame, text = 'Original Type:')
 			   ]
 
-
-
 i = 0
 for n in range(len(info_attributes)):
 	if getattr(mtg_object.data[default_edition].data[default_card], info_attributes[n]) is not None:
@@ -276,8 +290,9 @@ def update_info(card, edition):
 	print 'Updating Info!'
 	i = 0
 	for n in range(len(info_attributes)):
-		info_labels[n].pack_forget()
-		info_attribute_labels[n].pack_forget()
+		info_labels[n].grid_forget()
+		info_attribute_labels[n].grid_forget()
+
 	for n in range(len(info_attributes)):
 		if getattr(mtg_object.data[edition].data[card], info_attributes[n]) is not None:
 			info_labels[n].grid(row=i, column=0, sticky=NW)
