@@ -102,7 +102,7 @@ def get_image(edition, name, wt, ht):
 		pil_image = pil_image.resize((wt, ht), Image.ANTIALIAS)
 		tk_image = ImageTk.PhotoImage(pil_image)
 	except:
-		tk_image = 'Card not found'
+		tk_image = None
 	return tk_image
 
 
