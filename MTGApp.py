@@ -10,6 +10,7 @@ from ConnectionRequired import is_internet_on, get_image, download_json
 from Classes import Magic
 import time
 import os
+import platform
 from Prices import get_prices
 
 def change_image(event=None):
@@ -116,12 +117,6 @@ edition_variable.set(edition_options[0])
 edition_option_menu.grid(row=0, column=0)
 card_option_menu.grid(row=0, column=1)
 
-#card_name = StringVar()
-#
-#card_name_entry = Entry(root, textvariable=card_name)
-#card_name_entry.focus()
-#card_name_entry.pack()
-
 enter_button = Button(search_frame, text='Enter', command=change_image)
 enter_button.grid(row=0, column=2)
 
@@ -187,6 +182,12 @@ class AutoScrollbar(Scrollbar):
 def scroll_function(event):
     canvas.configure(scrollregion=canvas.bbox("all"),width=img_wt,height=img_ht)
 
+def on_mouse_wheel(event):
+	if platform.system() == 'Darwin':
+		canvas.yview_scroll(-1*(event.delta), "units")
+	else:
+		canvas.yview_scroll(-1*(event.delta)/120, "units")
+
 #scrollbar!
 canvas = Canvas(scroll_frame)
 info_frame = Frame(canvas)
@@ -198,6 +199,7 @@ info_scrollbar.grid(row=0, column=1, sticky=N+S)
 canvas.grid(row=0, column=0)
 canvas.create_window((0,0), window=info_frame, anchor='nw')
 info_frame.bind("<Configure>", scroll_function)
+root.bind_all("<MouseWheel>", on_mouse_wheel)
 
 
 
