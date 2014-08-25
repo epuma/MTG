@@ -15,7 +15,7 @@ a = Magic(json_file)
 
 #print b.getQuantity('Limited Edition Alpha', 'Black Lotus')
 
-print a.findCard('Assault')
+print a.findCard('B.F.M. (Big Furry Monster)')
 
 #print sorted(a.data.keys())
 #print a["Limited Edition Alpha"]["Air Elemental"].printings
