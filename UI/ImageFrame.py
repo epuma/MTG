@@ -23,8 +23,8 @@ class ImageFrame(Frame):
 			self.card_image = Label(self, text = 'No Internet!')
 			self.card_image.place(relx=0.5, rely=0.5, anchor=CENTER)
 
-	def update_image(self, card, edition, mtg_object):
-		card_name = mtg_object.data[edition].data[card].imageName
+	def update_image(self, card_obj, edition):
+		card_name = card_obj.imageName
 		self.tk_image = get_image(edition, card_name, self.img_wt, self.img_ht)
 		if self.tk_image is None:
 			self.card_image.config(image="", text='Card not Found')

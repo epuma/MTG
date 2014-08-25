@@ -100,9 +100,10 @@ class magic_app(Tk):
 	def update_ui(self, event=None):
 		edition = self.search_frame.edition_variable.get()
 		card = self.search_frame.card_variable.get()
-		self.price_frame.update_prices(card, edition, self.mtg_object)
-		self.image_frame.update_image(card, edition, self.mtg_object)
-		self.scroll_frame.update_info(card, edition, self.mtg_object)
+		card_obj = self.mtg_object.data[edition].data[card]
+		self.price_frame.update_prices(card_obj, edition)
+		self.image_frame.update_image(card_obj, edition)
+		self.scroll_frame.update_info(card_obj)
 	def on_mouse_wheel(self, event):
 		if platform.system() == 'Darwin':
 			self.scroll_frame.canvas.yview_scroll(-1*(event.delta), "units")

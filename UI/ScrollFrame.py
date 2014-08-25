@@ -23,13 +23,13 @@ class ScrollFrame(Frame):
 		self.canvas.create_window((0,0), window=self.info_frame, anchor='nw')
 		self.info_frame.bind("<Configure>", self.scroll_function)
 
-		self.mtg_object = root.mtg_object
+
+		self.default_edition = 'Limited Edition Alpha'
+		self.default_card = 'Black Lotus'
+		self.card_object = root.mtg_object.data[self.default_edition].data[self.default_card]
 		self.initialize()
 
 	def initialize(self):
-		self.default_edition = 'Limited Edition Alpha'
-		self.default_card = 'Black Lotus'
-
 		self.info_attributes = [
 						   'name',
 						   'manaCost',
@@ -55,27 +55,27 @@ class ScrollFrame(Frame):
 						   ]
 
 		self.info_attribute_labels = [
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].name),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].manaCost),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].type),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].rarity),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].text),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].flavor),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].power),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].toughness),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].loyalty),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].printings),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].artist),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].number),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].multiverseid),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].border),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].timeshifted),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].hand),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].life),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].rulings),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].legalities),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].originalText),
-								 Label(self.info_frame, text = self.mtg_object.data[self.default_edition].data[self.default_card].originalType)
+								 Label(self.info_frame, text = self.card_object.name),
+								 Label(self.info_frame, text = self.card_object.manaCost),
+								 Label(self.info_frame, text = self.card_object.type),
+								 Label(self.info_frame, text = self.card_object.rarity),
+								 Label(self.info_frame, text = self.card_object.text),
+								 Label(self.info_frame, text = self.card_object.flavor),
+								 Label(self.info_frame, text = self.card_object.power),
+								 Label(self.info_frame, text = self.card_object.toughness),
+								 Label(self.info_frame, text = self.card_object.loyalty),
+								 Label(self.info_frame, text = self.card_object.printings),
+								 Label(self.info_frame, text = self.card_object.artist),
+								 Label(self.info_frame, text = self.card_object.number),
+								 Label(self.info_frame, text = self.card_object.multiverseid),
+								 Label(self.info_frame, text = self.card_object.border),
+								 Label(self.info_frame, text = self.card_object.timeshifted),
+								 Label(self.info_frame, text = self.card_object.hand),
+								 Label(self.info_frame, text = self.card_object.life),
+								 Label(self.info_frame, text = self.card_object.rulings),
+								 Label(self.info_frame, text = self.card_object.legalities),
+								 Label(self.info_frame, text = self.card_object.originalText),
+								 Label(self.info_frame, text = self.card_object.originalType)
 								 ]
 
 
@@ -106,7 +106,7 @@ class ScrollFrame(Frame):
 
 		i = 0
 		for n in range(len(self.info_attributes)):
-			if getattr(self.mtg_object.data[self.default_edition].data[self.default_card], self.info_attributes[n]) is not None:
+			if getattr(self.card_object, self.info_attributes[n]) is not None:
 				self.info_labels[n].grid(row=i, column=0, sticky=NW)
 				self.info_attribute_labels[n].config(wraplength=350, justify=LEFT)
 				self.info_attribute_labels[n].grid(row=i, column=1, sticky=W)
@@ -115,7 +115,7 @@ class ScrollFrame(Frame):
 	def scroll_function(self, event):
 		self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=self.img_wt,height=self.img_ht)
 
-	def update_info(self, card, edition, mtg_object):
+	def update_info(self, card_obj):
 		print 'Updating Info!'
 		i = 0
 		for n in range(len(self.info_attributes)):
@@ -123,9 +123,9 @@ class ScrollFrame(Frame):
 			self.info_attribute_labels[n].grid_forget()
 		
 		for n in range(len(self.info_attributes)):
-			if getattr(mtg_object.data[edition].data[card], self.info_attributes[n]) is not None:
+			if getattr(card_obj, self.info_attributes[n]) is not None:
 				self.info_labels[n].grid(row=i, column=0, sticky=NW)
-				self.info_attribute_labels[n].config(text=getattr(mtg_object.data[edition].data[card], self.info_attributes[n]), wraplength=350, justify=LEFT)
+				self.info_attribute_labels[n].config(text=getattr(card_obj, self.info_attributes[n]), wraplength=350, justify=LEFT)
 				self.info_attribute_labels[n].grid(row=i, column=1, sticky=W)
 				i += 1
 

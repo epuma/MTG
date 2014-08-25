@@ -27,8 +27,8 @@ class PriceFrame(Frame):
 		self.medium_price.grid(row=1, column=1, sticky=E)
 		self.low_price.grid(row=2, column=1, sticky=E)
 
-	def update_prices(self, card, edition, mtg_object):
-		new_card = check_split_card(card, edition, mtg_object)
+	def update_prices(self, card_obj, edition):
+		new_card = check_split_card(card_obj)
 		prices = get_prices(new_card, edition)
 		if 'N/A' in prices:
 			self.high_price.config(text= prices[0])
@@ -40,11 +40,10 @@ class PriceFrame(Frame):
 			self.low_price.config(text='$'+ prices[2])
 
 #Changes the name to fit the URL from TCGPlayer if the card is a split card
-def check_split_card(card, edition, mtg_object):
-	card_obj = mtg_object.data[edition].data[card]
+def check_split_card(card_obj):
 	new_card_name = ''
 	if card_obj.layout == 'split':
 		new_card_name = card_obj.names[0] + ' // ' + card_obj.names[1]
 	else:
-		new_card_name = card
+		new_card_name = card_obj.name
 	return new_card_name

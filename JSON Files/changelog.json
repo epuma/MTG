@@ -1,12 +1,20 @@
 [
 	{
+		"version": "2.9.1",
+		"when": "2014-08-25",
+		"changes": [
+			"S99: Fixed two cards that had the wrong rarity"
+		],
+		"updatedSetFiles" : ["S99", "S99-x"]
+	},
+	{
 		"version": "2.9.0",
 		"when": "2014-08-21",
 		"changes": [
 			"Added promo cards! Added 27 new sets with set type \"promo\" and 4-letter set codes that begin with a lowercase 'p'. Many promo cards have a new 'source' property (extras only) that further details how the card was obtained.",
 			"As part of promo cards being added, the HHO and PPR sets have been removed. HHO is now pHHO and PPR's cards are spread across different promo sets.",
 			"Added set: From the Vault: Annihilation (2014) (V14)",
-			"Fixed a bug where some basic lands (snow covered lands) still had card text. All basic lands now correctly do not have card text as per <a href=\"http://rules.wizards.com/rulebook.aspx?game=Magic#3162\">rule 305.6</a>",
+			"Fixed a bug where some basic lands (snow covered lands) still had card text. All basic lands now correctly do not have card text as per.",
 			"Fixed issues where rulings would have multiple spaces in random places in the ruling text.",
 			"ODY, JUD, TSB: Fixed some foreignNames that incorrectly started with 'XX'.",
 			"USG, DDL, C13, M14: Newlines now correctly appear before the em-dash in the flavor text"
