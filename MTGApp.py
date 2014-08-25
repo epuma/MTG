@@ -130,7 +130,9 @@ card_variable = StringVar()
 edition_variable.trace('w', update_options)
 edition_option_menu = OptionMenu(search_frame, edition_variable, *edition_options)
 card_option_menu = OptionMenu(search_frame, card_variable, '')
+
 edition_variable.set(edition_options[0])
+
 edition_option_menu.grid(row=0, column=0)
 card_option_menu.grid(row=0, column=1)
 
