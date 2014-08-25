@@ -87,7 +87,7 @@ class Collection():
 					if value['price'][n] == 'N/A':
 						total_price[n] += 0
 					else:
-						total_price[n] += float(value['price'][n])
+						total_price[n] += value['quantity']*float(value['price'][n])
 		return total_price
 
 

@@ -5,51 +5,33 @@ try:
 except ImportError:
 	from tkinter import *
 
+from Classes import Magic
+import SplashScreen
+import PriceFrame
+
 from Menu import create_menu
 from ConnectionRequired import is_internet_on, get_image, download_json
-from Classes import Magic
+
 import time
 import os
 import platform
-from Prices import get_prices
 
-def change_image(event=None):
+def update_ui(event=None):
 	global tk_image
 	edition = edition_variable.get()
 	card = card_variable.get()
+	
+	price_frame.update_prices(card, edition, mtg_object)
+	update_info(card, edition)
+	update_image(card, edition, mtg_object)
+	
+def update_image(card, edition, mtg_object):
 	card_name = mtg_object.data[edition].data[card].imageName
 	tk_image = get_image(edition, card_name, img_wt, img_ht)
 	if tk_image is None:
 		card_image.config(image="", text='Card not Found')
-		high_price.config(text='N/A')
-		medium_price.config(text='N/A')
-		low_price.config(text='N/A')
 	else:
 		card_image.config(image=tk_image)
-		update_prices(card, edition)
-		update_info(card, edition)
-
-def update_prices(card, edition):
-	new_card = check_split_card(card, edition)
-	prices = get_prices(new_card, edition)
-	if 'N/A' in prices:
-		high_price.config(text= prices[0])
-		medium_price.config(text= prices[1])
-		low_price.config(text= prices[2])
-	else:
-		high_price.config(text='$'+ prices[0])
-		medium_price.config(text='$'+ prices[1])
-		low_price.config(text='$'+ prices[2])
-
-#Changes the name to fit the URL from TCGPlayer if the card is a split card
-def check_split_card(card, edition):
-	card_obj = mtg_object.data[edition].data[card]
-	new_card_name = ''
-	if card_obj.layout == 'split':
-		new_card_name = card_obj.names[0] + ' // ' + card_obj.names[1]
-	else:
-		new_card_name = card
-	return new_card_name
 
 
 #initialize the app window
@@ -66,28 +48,9 @@ img_ht = int(ht_ratio * 680)
 #forces Python to the front
 os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
 
-#####################################################
-#Splash Screen
-import io
-from PIL import Image, ImageTk
-pil_image = Image.open('SplashScreen.jpg')
-w,h = pil_image.size
-pil_image = pil_image.resize((w/2, h/2), Image.ANTIALIAS)
-splash_image = ImageTk.PhotoImage(pil_image)
-
 root.withdraw()
-splash_screen = Toplevel()
-splash_screen.overrideredirect(1)
-splash_screen.attributes('-topmost', 1)
-
-imgXPos = (scrnWt / 2) - (w / 4)
-imgYPos = (scrnHt / 2) - (h / 4)
-
-splash_screen.geometry('+%d+%d' % (imgXPos, imgYPos))
-splash_label = Label(splash_screen, image=splash_image, text='Loading...', compound='center', cursor = "watch", fg='white', font=('Helvetica',90,'bold'))
-splash_label.focus_set()
-splash_label.pack()
-splash_screen.update()
+#SplashScreen
+splash_screen = SplashScreen.SplashScreen(root)
 
 print 'Downloading Updates...'
 if is_internet_on():
@@ -98,16 +61,15 @@ else:
 print 'loading...'
 json_file = 'JSON Files/AllSets-x.json'
 mtg_object = Magic(json_file)
-#time.sleep(5)
 print 'DONE!'
-splash_screen.destroy()
 
+splash_screen.destroy()
 root.deiconify()
 
-###################################################
 #Initiate Menu
 menubar = create_menu(root)
 root.config(menu = menubar)
+
 
 #Search Frame with Option Menus and Enter Button
 search_frame = Frame(root)
@@ -136,10 +98,12 @@ edition_variable.set(edition_options[0])
 edition_option_menu.grid(row=0, column=0)
 card_option_menu.grid(row=0, column=1)
 
-enter_button = Button(search_frame, text='Enter', command=change_image)
+
+
+enter_button = Button(search_frame, text='Enter', command=update_ui)
 enter_button.grid(row=0, column=2)
 
-root.bind('<Return>', change_image)
+root.bind('<Return>', update_ui)
 
 
 #Image Frame to place the card image in
@@ -156,26 +120,9 @@ else:
 	no_internet = Label(image_frame, text = 'No Internet!')
 	no_internet.pack()
 
-#Price Frame to fit Labels
-price_frame = Frame(root)
-price_frame.grid(row=1, column=0)
 
-high_label = Label(price_frame, text='TCG Price High')
-medium_label = Label(price_frame, text='TCG Price Medium')
-low_label = Label(price_frame, text='TCG Price Low')
-
-high_price = Label(price_frame, text='N/A')
-medium_price = Label(price_frame, text='N/A')
-low_price = Label(price_frame, text='N/A')
-
-
-high_label.grid(row=0, column=0, sticky=W)
-medium_label.grid(row=1, column=0, sticky=W)
-low_label.grid(row=2, column=0, sticky=W)
-
-high_price.grid(row=0, column=1, sticky=E)
-medium_price.grid(row=1, column=1, sticky=E)
-low_price.grid(row=2, column=1, sticky=E)
+#Price Frame
+price_frame = PriceFrame.PriceFrame(root)
 
 #############################################################################
 #Frame for Card Information
@@ -324,13 +271,18 @@ def update_info(card, edition):
 
 #############################################################################
 
+#Implement Collections
 
 
+
+
+
+#############################################################################
 #Sets the minimum size of the window to exactly fit all widgets
 root.update()
 winWt = root.winfo_width()
 winHt = root.winfo_height()
-winXPos = (scrnWt / 2) - (winWt / 2)
+winXPos = 0
 winYPos = 0
 root.geometry('%dx%d+%d+%d' % (winWt, winHt, winXPos, winYPos))
 root.minsize(winWt, winHt)

@@ -2,14 +2,20 @@ import sys
 from Tkinter import *
 from tkFileDialog import askopenfilename
 from tkFileDialog import asksaveasfilename
+from Classes import Collection
 
 def donothing():
 	filewin = Toplevel()
 	button = Button(filewin, text = "Do nothing button")
 	button.pack()
 
+def new_file():
+	filePath = get_save_name()
+	#do something with filepath, create and save a new json file with that name
+
 def get_file_name():
 	filePath = askopenfilename()
+	print filePath
 	return filePath
 
 def open_file():
@@ -19,6 +25,7 @@ def open_file():
 def get_save_name():
 	filePath = asksaveasfilename(defaultextension = '.json')
 	print filePath
+	return filePath
 
 def save_file():
     filePath = get_save_name()
@@ -31,7 +38,7 @@ def create_menu(root):
 	menubar = Menu(root)
 
 	filemenu = Menu(menubar, tearoff=0)
-	filemenu.add_command(label="New", command=donothing)
+	filemenu.add_command(label="New", command=new_file)
 	filemenu.add_command(label="Open", command=open_file)
 	filemenu.add_command(label="Save", command=save_file)
 	filemenu.add_command(label="Save as...", command=save_file)
