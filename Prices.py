@@ -39,7 +39,7 @@ def retrieve_prices(card_name, edition):
 	html_code = response.read()
 	prices = []
 
-	if html_code.find('Price N/A') != -1:
+	if (html_code.find('Price N/A') != -1) or html_code.find('<B>$') == -1:
 		prices = ['N/A', 'N/A', 'N/A']
 	else:
 		html_code = html_code.split('<B>$')[1:]

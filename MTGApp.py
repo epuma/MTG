@@ -30,10 +30,27 @@ def change_image(event=None):
 		update_info(card, edition)
 
 def update_prices(card, edition):
-	prices = get_prices(card, edition)
-	high_price.config(text='$'+ prices[0])
-	medium_price.config(text='$'+ prices[1])
-	low_price.config(text='$'+ prices[2])
+	new_card = check_split_card(card, edition)
+	prices = get_prices(new_card, edition)
+	if 'N/A' in prices:
+		high_price.config(text= prices[0])
+		medium_price.config(text= prices[1])
+		low_price.config(text= prices[2])
+	else:
+		high_price.config(text='$'+ prices[0])
+		medium_price.config(text='$'+ prices[1])
+		low_price.config(text='$'+ prices[2])
+
+#Changes the name to fit the URL from TCGPlayer if the card is a split card
+def check_split_card(card, edition):
+	card_obj = mtg_object.data[edition].data[card]
+	new_card_name = ''
+	if card_obj.layout == 'split':
+		new_card_name = card_obj.names[0] + ' // ' + card_obj.names[1]
+	else:
+		new_card_name = card
+	return new_card_name
+
 
 #initialize the app window
 root = Tk()

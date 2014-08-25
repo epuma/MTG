@@ -1,5 +1,7 @@
 REPLACEMENTS = {
 	u'\u2014' : '-',
+	u'\u2E3A' : '-',
+	u'\u2212' : '-',
 	u'\xc6' : 'AE',
 	u'\xe9' : 'e',
 	u'\xe0' : 'a',
@@ -10,6 +12,7 @@ REPLACEMENTS = {
 	u'\xed' : 'i',
 	u'\xae' : 'R',
 	u'\xf6' : 'o',
+	u'\u00FC' : 'u',
 	u'\u2019' : "'"
 }
 
@@ -24,7 +27,7 @@ def clean_unicode(item):
 				for k,v in things.iteritems():
 					new_things[clean_unicode(k)] = clean_unicode(v)
 			else:
-				new_things = things
+				new_things = clean_unicode(things)
 			new_item.append(new_things)
 	elif isinstance(item, dict):
 		new_things = {}
