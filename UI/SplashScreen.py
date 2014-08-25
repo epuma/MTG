@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 class SplashScreen(Toplevel):
 	def __init__(self, root):
 		Toplevel.__init__(self)
-		pil_image = Image.open('SplashScreen.jpg')
+		pil_image = Image.open('UI/SplashScreen.jpg')
 		w,h = pil_image.size
 		pil_image = pil_image.resize((w/2, h/2), Image.ANTIALIAS)
 		splash_image = ImageTk.PhotoImage(pil_image)

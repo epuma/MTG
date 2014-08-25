@@ -35,8 +35,11 @@ def retrieve_prices(card_name, edition):
 	
 	print url
 	
-	response = urllib2.urlopen(url)
-	html_code = response.read()
+	try:
+		response = urllib2.urlopen(url)
+		html_code = response.read()
+	except:
+		html_code = ''
 	prices = []
 
 	if (html_code.find('Price N/A') != -1) or html_code.find('<B>$') == -1:
