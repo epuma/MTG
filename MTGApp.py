@@ -69,7 +69,7 @@ class magic_app(Tk):
 		
 		#Implement Collections Here
 
-		#Sets the minimum size of the window to exactly fit all widgets
+		#Sets size of window to exactly fit all widgets
 		self.update()
 		self.winWt = self.winfo_width()
 		self.winHt = self.winfo_height()
@@ -77,6 +77,7 @@ class magic_app(Tk):
 		self.minsize(self.winWt, self.winHt)
 		self.maxsize(self.winWt, self.winHt)
 
+	#This Method does nothing
 	def donothing(self):
 		filewin = Toplevel()
 		button = Button(filewin, text = "Do nothing button")
