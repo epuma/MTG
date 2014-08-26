@@ -30,6 +30,11 @@ class Collection():
 		with open(fileName, 'w') as outfile:
 			json.dump(self.data, outfile)
 
+	def save_close(self, fileName):
+		with open(fileName, 'w') as outfile:
+			json.dump(self.data, outfile)
+		self.data = None
+
 	def newCollection(self, magic_obj, fileName = 'untitledCollection.json'):
 		b = {}
 		for sets in magic_obj.data.keys():
@@ -47,12 +52,6 @@ class Collection():
 				for k,v in magic_obj.data[sets].data.iteritems():
 					self.data[sets].update({k: {'quantity' : 0, 'price' : ['N/A', 'N/A', 'N/A'], 'last_date' : '', 'notes' : ''}})
 
-	def addCard(self, edition, card, quantity):
-		self.data[edition][card]['quantity'] += quantity
-
-	def removeCard(self, edition, card, quantity):
-		self.data[edition][card]['quantity'] -= quantity
-
 	def getQuantity(self, edition, card):
 		return self.data[edition][card]['quantity']
 	
@@ -64,6 +63,9 @@ class Collection():
 	
 	def getNotes(self, edition, card):
 		return self.data[edition][card]['notes']
+
+	def updateQuantity(self, edition, card, quantity):
+		self.data[edition][card]['quantity'] = quantity
 
 	def updatePrice(self, edition, card, price):
 		self.data[edition][card]['price'] = price

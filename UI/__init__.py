@@ -4,3 +4,6 @@ from PriceFrame import PriceFrame
 from ScrollFrame import ScrollFrame
 from SearchFrame import SearchFrame
 from SplashScreen import SplashScreen
+from CollectionFrame import CollectionFrame
+from CollectionNameFrame import CollectionNameFrame
+from QuantityFrame import QuantityFrame

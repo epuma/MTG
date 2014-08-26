@@ -26,18 +26,19 @@ class PriceFrame(Frame):
 		self.high_price.grid(row=0, column=1, sticky=E)
 		self.medium_price.grid(row=1, column=1, sticky=E)
 		self.low_price.grid(row=2, column=1, sticky=E)
+		self.prices = None
 
 	def update_prices(self, card_obj, edition):
 		new_card = check_split_card(card_obj)
-		prices = get_prices(new_card, edition)
-		if 'N/A' in prices:
-			self.high_price.config(text= prices[0])
-			self.medium_price.config(text= prices[1])
-			self.low_price.config(text= prices[2])
+		self.prices = get_prices(new_card, edition)
+		if 'N/A' in self.prices:
+			self.high_price.config(text= self.prices[0])
+			self.medium_price.config(text= self.prices[1])
+			self.low_price.config(text= self.prices[2])
 		else:
-			self.high_price.config(text='$'+ prices[0])
-			self.medium_price.config(text='$'+ prices[1])
-			self.low_price.config(text='$'+ prices[2])
+			self.high_price.config(text='$'+ self.prices[0])
+			self.medium_price.config(text='$'+ self.prices[1])
+			self.low_price.config(text='$'+ self.prices[2])
 
 #Changes the name to fit the URL from TCGPlayer if the card is a split card
 def check_split_card(card_obj):

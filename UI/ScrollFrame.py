@@ -22,6 +22,7 @@ class ScrollFrame(Frame):
 		self.canvas.grid(row=0, column=0)
 		self.canvas.create_window((0,0), window=self.info_frame, anchor='nw')
 		self.info_frame.bind("<Configure>", self.scroll_function)
+		self.info_frame.bind("<MouseWheel>", self.on_mouse_wheel)
 
 
 		self.default_edition = 'Limited Edition Alpha'
@@ -114,6 +115,11 @@ class ScrollFrame(Frame):
 
 	def scroll_function(self, event):
 		self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=self.img_wt,height=self.img_ht)
+	def on_mouse_wheel(self, event):
+		if platform.system() == 'Darwin':
+			self.scroll_frame.canvas.yview_scroll(-1*(event.delta), "units")
+		else:
+			self.scroll_frame.canvas.yview_scroll(-1*(event.delta)/120, "units")
 
 	def update_info(self, card_obj):
 		print 'Updating Info!'

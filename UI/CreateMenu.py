@@ -13,6 +13,7 @@ class CreateMenu(Menu):
 		self.filemenu.add_command(label="Open", command=root.open_file)
 		self.filemenu.add_command(label="Save", command=root.save_file)
 		self.filemenu.add_command(label="Save as...", command=root.save_file)
+		self.filemenu.add_command(label="Save and Close", command=root.save_close_file)
 		self.filemenu.add_separator()
 		self.filemenu.add_command(label="Exit", command=root.quit)
 		
