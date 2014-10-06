@@ -95,6 +95,7 @@ class magic_app(Tk):
 	def open_file(self):
 		filePath = askopenfilename()
 		self.collection.load(filePath)
+		self.collection.updateCollection(self.mtg_object)
 		self.collection_name_frame.update_name(os.path.basename(filePath))
 		self.collection_frame.update_collection_info(self, self.edition, self.card)
 		self.quantity_frame.change_state(self)

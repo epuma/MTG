@@ -51,6 +51,7 @@ class Collection():
 				self.data[sets] = {}
 				for k,v in magic_obj.data[sets].data.iteritems():
 					self.data[sets].update({k: {'quantity' : 0, 'price' : ['N/A', 'N/A', 'N/A'], 'last_date' : '', 'notes' : ''}})
+				print 'Collection Updated'
 
 	def getQuantity(self, edition, card):
 		return self.data[edition][card]['quantity']
