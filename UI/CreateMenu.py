@@ -1,26 +1,20 @@
-import sys
+from tkinter import Menu
 
-try:
-	from Tkinter import *
-except ImportError:
-	from tkinter import *
 
 class CreateMenu(Menu):
-	def __init__(self, root):
-		Menu.__init__(self, root)
-		self.filemenu = Menu(self, tearoff=0)
-		self.filemenu.add_command(label="New", command=root.new_file)
-		self.filemenu.add_command(label="Open", command=root.open_file)
-		self.filemenu.add_command(label="Save", command=root.save_file)
-		self.filemenu.add_command(label="Save as...", command=root.save_file)
-		self.filemenu.add_command(label="Save and Close", command=root.save_close_file)
-		self.filemenu.add_separator()
-		self.filemenu.add_command(label="Exit", command=root.quit)
-		
-		self.add_cascade(label="File", menu=self.filemenu)
-		
-		self.helpmenu = Menu(self, tearoff=0)
-		self.helpmenu.add_command(label="Help Index", command=root.donothing)
-		self.helpmenu.add_command(label="About...", command=root.donothing)
-		
-		self.add_cascade(label="Help", menu=self.helpmenu)
+    def __init__(self, root):
+        super().__init__(root)
+
+        filemenu = Menu(self, tearoff=0)
+        filemenu.add_command(label='New',            command=root.new_file)
+        filemenu.add_command(label='Open',           command=root.open_file)
+        filemenu.add_command(label='Save',           command=root.save_file)
+        filemenu.add_command(label='Save as...',     command=root.save_file)
+        filemenu.add_command(label='Save and Close', command=root.save_close_file)
+        filemenu.add_separator()
+        filemenu.add_command(label='Exit',           command=root.quit)
+        self.add_cascade(label='File', menu=filemenu)
+
+        helpmenu = Menu(self, tearoff=0)
+        helpmenu.add_command(label='About...', command=root.show_about)
+        self.add_cascade(label='Help', menu=helpmenu)

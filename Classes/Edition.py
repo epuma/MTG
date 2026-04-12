@@ -1,16 +1,18 @@
-from Card import Card
-from lib import clean_unicode
+from .Card import Card
+from .lib import clean_unicode
 
-class Edition(object):
-	#This is a class that will create an Edition Object. It sets all of the information as attributes and sets every card in the Edition to be a Card Object.
 
-	def __init__(self, data):
-		self.data = {}
-		for k,v in data.iteritems():
-			if k != "cards":
-				setattr(self, k, v)
-		for item in data["cards"]:
-			self.data[clean_unicode(item["name"])] = Card(item)
+class Edition:
+    """Represents one MTG set/edition with all its cards."""
 
-	def getCard(self, name):
-		return self.data[name]
+    def __init__(self, data):
+        self.data = {}
+        for k, v in data.items():
+            if k != 'cards':
+                setattr(self, k, v)
+        for card_data in data.get('cards', []):
+            card = Card(card_data)
+            self.data[clean_unicode(card_data['name'])] = card
+
+    def getCard(self, name):
+        return self.data[name]

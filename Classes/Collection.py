@@ -1,100 +1,125 @@
-from Magic import Magic
-import json
-import io
 import datetime
-
-class Collection():
-
-	def __init__(self):
-		self.data = None
-
-	def __str__(self):
-		result = ""
-		total = 0
-		for k,v in self.data.iteritems():
-			result += '\n' + k + '\n'
-			for key, value in v.iteritems():
-				result += key + ': ' + str(value['quantity']) + '\n'
-				total += value['quantity']
-		result += 'Total Number of Cards: ' + str(total)
-		return result
-
-	def load(self, fileName):
-		json_data_file = open(fileName)
-		json_data = json.load(json_data_file)
-		json_data_file.close()
-
-		self.data = json_data
-
-	def save(self, fileName):
-		with open(fileName, 'w') as outfile:
-			json.dump(self.data, outfile)
-
-	def save_close(self, fileName):
-		with open(fileName, 'w') as outfile:
-			json.dump(self.data, outfile)
-		self.data = None
-
-	def newCollection(self, magic_obj, fileName = 'untitledCollection.json'):
-		b = {}
-		for sets in magic_obj.data.keys():
-			b[sets] = {}
-			for k,v in magic_obj.data[sets].data.iteritems():
-				b[sets].update({k: {'quantity' : 0, 'price' : ['N/A', 'N/A', 'N/A'], 'last_date' : '', 'notes' : ''}})
-
-		with open(fileName, 'w') as outfile:
-			json.dump(b, outfile)
-
-	def updateCollection(self, magic_obj):
-		for sets in magic_obj.data.keys():
-			if sets not in self.data.keys():
-				self.data[sets] = {}
-				for k,v in magic_obj.data[sets].data.iteritems():
-					self.data[sets].update({k: {'quantity' : 0, 'price' : ['N/A', 'N/A', 'N/A'], 'last_date' : '', 'notes' : ''}})
-				print 'Collection Updated'
-
-	def getQuantity(self, edition, card):
-		return self.data[edition][card]['quantity']
-	
-	def getPrice(self, edition, card):
-		return self.data[edition][card]['price']
-	
-	def getDateUpdated(self, edition, card):
-		return self.data[edition][card]['last_date']
-	
-	def getNotes(self, edition, card):
-		return self.data[edition][card]['notes']
-
-	def updateQuantity(self, edition, card, quantity):
-		self.data[edition][card]['quantity'] = quantity
-
-	def updatePrice(self, edition, card, price):
-		self.data[edition][card]['price'] = price
-		self.data[edition][card]['last_date'] = datetime.datetime.now().strftime("%B %d, %Y %I:%M%p")
-
-	def updateNotes(self, edition, card, notes):
-		self.data[edition][card]['notes'] = notes
-
-	def getTotalQuantity(self):
-		total = 0
-		for k,v in self.data.iteritems():
-			for key, value in v.iteritems():
-				total += value['quantity']
-		return total
-
-	def getTotalPrice(self):
-		total_price = [0,0,0]
-		for k,v in self.data.iteritems():
-			for key, value in v.iteritems():
-				for n in [0, 1, 2]:
-					if value['price'][n] == 'N/A':
-						total_price[n] += 0
-					else:
-						total_price[n] += value['quantity']*float(value['price'][n])
-		return total_price
+import json
 
 
+class Collection:
+    """
+    Manages a user's card collection stored as a JSON file.
 
+    Structure:
+        {
+            "<Edition name>": {
+                "<Card name>": {
+                    "quantity":  int,
+                    "price":     [usd, usd_foil, tix],
+                    "last_date": str,
+                    "notes":     str
+                }
+            }
+        }
+    """
 
+    def __init__(self):
+        self.data = None
 
+    # ------------------------------------------------------------------ I/O
 
+    def load(self, file_name):
+        with open(file_name, encoding='utf-8') as fh:
+            self.data = json.load(fh)
+
+    def save(self, file_name):
+        with open(file_name, 'w', encoding='utf-8') as fh:
+            json.dump(self.data, fh)
+
+    def save_close(self, file_name):
+        self.save(file_name)
+        self.data = None
+
+    # ----------------------------------------------------------- Construction
+
+    def newCollection(self, magic_obj, file_name='untitledCollection.json'):
+        """Build a fresh collection skeleton from a Magic database object."""
+        b = {}
+        for edition_name, edition in magic_obj.data.items():
+            b[edition_name] = {
+                card_name: {'quantity': 0, 'price': ['N/A', 'N/A', 'N/A'],
+                             'last_date': '', 'notes': ''}
+                for card_name in edition.data
+            }
+        with open(file_name, 'w', encoding='utf-8') as fh:
+            json.dump(b, fh)
+
+    def updateCollection(self, magic_obj):
+        """Add any sets/cards present in the database but missing from this collection."""
+        for edition_name, edition in magic_obj.data.items():
+            if edition_name not in self.data:
+                self.data[edition_name] = {}
+            for card_name in edition.data:
+                if card_name not in self.data[edition_name]:
+                    self.data[edition_name][card_name] = {
+                        'quantity': 0,
+                        'price': ['N/A', 'N/A', 'N/A'],
+                        'last_date': '',
+                        'notes': '',
+                    }
+        print('Collection updated.')
+
+    # ------------------------------------------------------------ Accessors
+
+    def getQuantity(self, edition, card):
+        return self.data[edition][card]['quantity']
+
+    def getPrice(self, edition, card):
+        return self.data[edition][card]['price']
+
+    def getDateUpdated(self, edition, card):
+        return self.data[edition][card]['last_date']
+
+    def getNotes(self, edition, card):
+        return self.data[edition][card]['notes']
+
+    # ------------------------------------------------------------ Mutators
+
+    def updateQuantity(self, edition, card, quantity):
+        self.data[edition][card]['quantity'] = quantity
+
+    def updatePrice(self, edition, card, price):
+        self.data[edition][card]['price'] = price
+        self.data[edition][card]['last_date'] = (
+            datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')
+        )
+
+    def updateNotes(self, edition, card, notes):
+        self.data[edition][card]['notes'] = notes
+
+    # ------------------------------------------------------------ Aggregates
+
+    def getTotalQuantity(self):
+        return sum(
+            card['quantity']
+            for edition in self.data.values()
+            for card in edition.values()
+        )
+
+    def getTotalPrice(self):
+        total = [0.0, 0.0, 0.0]
+        for edition in self.data.values():
+            for card in edition.values():
+                qty = card['quantity']
+                for i in range(3):
+                    p = card['price'][i]
+                    if p != 'N/A':
+                        total[i] += qty * float(p)
+        return total
+
+    def __str__(self):
+        lines = []
+        total = 0
+        for edition_name, cards in self.data.items():
+            lines.append(f'\n{edition_name}')
+            for card_name, info in cards.items():
+                lines.append(f"  {card_name}: {info['quantity']}")
+                total += info['quantity']
+        lines.append(f'\nTotal cards: {total}')
+        return '\n'.join(lines)
