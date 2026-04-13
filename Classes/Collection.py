@@ -7,17 +7,17 @@ class Collection:
     """
     Manages a user's card collection stored as a JSON file.
 
-    Structure:
+    Per-card structure:
         {
-            "<Edition name>": {
-                "<Card name>": {
-                    "quantity":  int,
-                    "price":     [usd, usd_foil, tix],
-                    "last_date": str,
-                    "notes":     str
-                }
-            }
+            "quantity":      int,
+            "price":         [usd, usd_foil, tix],
+            "price_history": [{"date": str, "prices": [str, str, str]}, ...],
+            "last_date":     str,
+            "notes":         str
         }
+
+    price_history stores up to 10 snapshots (newest first) for owned cards
+    (quantity > 0) to avoid bloating the file with zero-quantity cards.
     """
 
     def __init__(self):
@@ -38,11 +38,7 @@ class Collection:
         self.data = None
 
     def export_csv(self, file_name):
-        """
-        Export all owned cards (quantity > 0) to a CSV file.
-        Columns: Edition, Card, Quantity, Market (USD), Foil (USD),
-                 MTGO (TIX), Last Updated, Notes.
-        """
+        """Export owned cards (quantity > 0) to a CSV file."""
         with open(file_name, 'w', newline='', encoding='utf-8') as fh:
             writer = csv.writer(fh)
             writer.writerow([
@@ -54,42 +50,35 @@ class Collection:
                 for card_name, info in sorted(cards.items()):
                     if info['quantity'] > 0:
                         writer.writerow([
-                            edition_name,
-                            card_name,
-                            info['quantity'],
-                            info['price'][0],
-                            info['price'][1],
-                            info['price'][2],
-                            info['last_date'],
-                            info['notes'],
+                            edition_name, card_name, info['quantity'],
+                            info['price'][0], info['price'][1], info['price'][2],
+                            info['last_date'], info['notes'],
                         ])
 
     # ----------------------------------------------------------- Construction
 
     def newCollection(self, magic_obj, file_name='untitledCollection.json'):
-        """Build a fresh collection skeleton from a Magic database object."""
         b = {}
         for edition_name, edition in magic_obj.data.items():
             b[edition_name] = {
-                card_name: {'quantity': 0, 'price': ['N/A', 'N/A', 'N/A'],
-                             'last_date': '', 'notes': ''}
+                card_name: {
+                    'quantity': 0, 'price': ['N/A', 'N/A', 'N/A'],
+                    'price_history': [], 'last_date': '', 'notes': '',
+                }
                 for card_name in edition.data
             }
         with open(file_name, 'w', encoding='utf-8') as fh:
             json.dump(b, fh)
 
     def updateCollection(self, magic_obj):
-        """Add any sets/cards present in the database but missing from this collection."""
         for edition_name, edition in magic_obj.data.items():
             if edition_name not in self.data:
                 self.data[edition_name] = {}
             for card_name in edition.data:
                 if card_name not in self.data[edition_name]:
                     self.data[edition_name][card_name] = {
-                        'quantity': 0,
-                        'price': ['N/A', 'N/A', 'N/A'],
-                        'last_date': '',
-                        'notes': '',
+                        'quantity': 0, 'price': ['N/A', 'N/A', 'N/A'],
+                        'price_history': [], 'last_date': '', 'notes': '',
                     }
         print('Collection updated.')
 
@@ -107,16 +96,27 @@ class Collection:
     def getNotes(self, edition, card):
         return self.data[edition][card]['notes']
 
+    def getPriceHistory(self, edition, card):
+        """Return list of {date, prices} dicts (newest first, max 10)."""
+        return self.data[edition][card].get('price_history', [])
+
     # ------------------------------------------------------------ Mutators
 
     def updateQuantity(self, edition, card, quantity):
         self.data[edition][card]['quantity'] = quantity
 
     def updatePrice(self, edition, card, price):
-        self.data[edition][card]['price'] = price
-        self.data[edition][card]['last_date'] = (
-            datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')
-        )
+        entry = self.data[edition][card]
+        now   = datetime.datetime.now().strftime('%b %d %Y %I:%M %p')
+
+        # Only track history for owned cards to avoid JSON bloat
+        if entry.get('quantity', 0) > 0:
+            history = entry.get('price_history', [])
+            history.insert(0, {'date': now, 'prices': list(price)})
+            entry['price_history'] = history[:10]
+
+        entry['price']     = list(price)
+        entry['last_date'] = datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')
 
     def updateNotes(self, edition, card, notes):
         self.data[edition][card]['notes'] = notes
@@ -131,7 +131,6 @@ class Collection:
         )
 
     def getUniqueOwned(self):
-        """Number of distinct cards with quantity > 0."""
         return sum(
             1
             for edition in self.data.values()

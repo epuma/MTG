@@ -8,3 +8,5 @@ from .CollectionFrame import CollectionFrame
 from .CollectionNameFrame import CollectionNameFrame
 from .QuantityFrame import QuantityFrame
 from .StatsFrame import StatsFrame
+from .ScryfallSearchFrame import ScryfallSearchFrame
+from .CollectionGridView import CollectionGridView
