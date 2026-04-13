@@ -304,7 +304,7 @@ class MagicApp(tk.Tk):
     def _check_db_update(self):
         """
         Background thread: compare Scryfall's latest export timestamp against
-        what's recorded in db_meta.  Prompts on the main thread if newer.
+        what's recorded in db_meta.  Starts a silent download if newer.
         """
         import build_db
         info = scryfall.get_bulk_data_info()
@@ -314,30 +314,13 @@ class MagicApp(tk.Tk):
         last_updated = meta.get('last_updated', '')
         # ISO 8601 strings are lexicographically ordered — safe to compare as str
         if info['updated_at'] > last_updated:
-            size_mb = round(info['size'] / 1_048_576)
-            self.after(0, self._prompt_update,
-                       info['download_uri'], info['updated_at'], size_mb)
-
-    def _prompt_update(self, download_uri: str, updated_at: str, size_mb: int):
-        """Main thread: ask user whether to download the newer card database."""
-        if self._update_in_progress:
-            return
-        date_str = updated_at[:10]   # trim to YYYY-MM-DD
-        if messagebox.askyesno(
-            'Card Database Update Available',
-            f'Scryfall has newer card data ({date_str}, ~{size_mb} MB).\n\n'
-            'Download and rebuild now?\n'
-            '(The app will need to restart to use the new data.)',
-        ):
+            if self._update_in_progress:
+                return
             self._update_in_progress = True
-            threading.Thread(
-                target=self._do_db_update,
-                args=(download_uri, updated_at),
-                daemon=True,
-            ).start()
+            self._do_db_update(info['download_uri'], info['updated_at'])
 
     def _do_db_update(self, download_uri: str, updated_at: str):
-        """Background thread: download Scryfall bulk data and rebuild cards.db."""
+        """Background thread: silently download Scryfall bulk data and rebuild cards.db."""
         import build_db
         tmp_db = DB_SQLITE + '.new'
         try:
@@ -346,9 +329,9 @@ class MagicApp(tk.Tk):
                 os.remove(DB_SQLITE)
             os.rename(tmp_db, DB_SQLITE)
             self.after(0, lambda: messagebox.showinfo(
-                'Update Complete',
-                'Card database updated successfully.\n'
-                'Please restart the app to load the new data.',
+                'Card Database Updated',
+                'Card database updated to the latest Scryfall data.\n'
+                'Please restart the app to load the new cards.',
             ))
         except Exception as exc:
             self.after(0, lambda e=exc: messagebox.showerror(
