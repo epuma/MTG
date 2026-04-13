@@ -7,3 +7,4 @@ from .SplashScreen import SplashScreen
 from .CollectionFrame import CollectionFrame
 from .CollectionNameFrame import CollectionNameFrame
 from .QuantityFrame import QuantityFrame
+from .StatsFrame import StatsFrame

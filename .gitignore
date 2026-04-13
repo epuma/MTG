@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Image cache (generated at runtime by scryfall.py)
+cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtual environments
+venv/
+.venv/
+env/

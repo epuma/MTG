@@ -1,3 +1,4 @@
+import csv
 import datetime
 import json
 
@@ -35,6 +36,33 @@ class Collection:
     def save_close(self, file_name):
         self.save(file_name)
         self.data = None
+
+    def export_csv(self, file_name):
+        """
+        Export all owned cards (quantity > 0) to a CSV file.
+        Columns: Edition, Card, Quantity, Market (USD), Foil (USD),
+                 MTGO (TIX), Last Updated, Notes.
+        """
+        with open(file_name, 'w', newline='', encoding='utf-8') as fh:
+            writer = csv.writer(fh)
+            writer.writerow([
+                'Edition', 'Card', 'Quantity',
+                'Market (USD)', 'Foil (USD)', 'MTGO (TIX)',
+                'Last Updated', 'Notes',
+            ])
+            for edition_name, cards in sorted(self.data.items()):
+                for card_name, info in sorted(cards.items()):
+                    if info['quantity'] > 0:
+                        writer.writerow([
+                            edition_name,
+                            card_name,
+                            info['quantity'],
+                            info['price'][0],
+                            info['price'][1],
+                            info['price'][2],
+                            info['last_date'],
+                            info['notes'],
+                        ])
 
     # ----------------------------------------------------------- Construction
 
@@ -100,6 +128,15 @@ class Collection:
             card['quantity']
             for edition in self.data.values()
             for card in edition.values()
+        )
+
+    def getUniqueOwned(self):
+        """Number of distinct cards with quantity > 0."""
+        return sum(
+            1
+            for edition in self.data.values()
+            for card in edition.values()
+            if card['quantity'] > 0
         )
 
     def getTotalPrice(self):

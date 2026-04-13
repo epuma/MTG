@@ -10,7 +10,7 @@ from Classes import Magic, Collection
 from UI import (
     CreateMenu, SplashScreen, SearchFrame, PriceFrame,
     ImageFrame, ScrollFrame, CollectionFrame, CollectionNameFrame,
-    QuantityFrame,
+    QuantityFrame, StatsFrame,
 )
 
 
@@ -74,6 +74,7 @@ class MagicApp(tk.Tk):
         self.collection_frame      = CollectionFrame(self)
         self.collection_name_frame = CollectionNameFrame(self)
         self.quantity_frame        = QuantityFrame(self)
+        self.stats_frame           = StatsFrame(self)
 
         self.bind('<Return>', self.update_ui)
 
@@ -93,6 +94,7 @@ class MagicApp(tk.Tk):
         self.collection_name_frame.update_name(os.path.basename(path))
         self.collection_frame.update_collection_info(self, self.edition, self.card)
         self.quantity_frame.change_state(self)
+        self.stats_frame.update_stats(self.collection)
 
     def open_file(self):
         path = askopenfilename()
@@ -103,6 +105,7 @@ class MagicApp(tk.Tk):
         self.collection_name_frame.update_name(os.path.basename(path))
         self.collection_frame.update_collection_info(self, self.edition, self.card)
         self.quantity_frame.change_state(self)
+        self.stats_frame.update_stats(self.collection)
 
     def save_file(self):
         path = asksaveasfilename(defaultextension='.json')
@@ -118,13 +121,30 @@ class MagicApp(tk.Tk):
         self.collection_name_frame.update_name('')
         self.collection_frame.update_collection_info(self, self.edition, self.card)
         self.quantity_frame.change_state(self)
+        self.stats_frame.update_stats(self.collection)
+
+    def export_collection(self):
+        if self.collection.data is None:
+            messagebox.showwarning('No collection open',
+                                   'Please open a collection before exporting.')
+            return
+        path = asksaveasfilename(
+            defaultextension='.csv',
+            filetypes=[('CSV files', '*.csv'), ('All files', '*.*')],
+        )
+        if not path:
+            return
+        self.collection.export_csv(path)
+        messagebox.showinfo('Export complete',
+                            f'Owned cards exported to:\n{path}')
 
     # ---------------------------------------------------------- UI helpers
 
     def show_about(self):
         messagebox.showinfo(
             'About',
-            'MTG Collection Manager\n\nTracks your Magic: The Gathering card collection.\n'
+            'MTG Collection Manager\n\n'
+            'Tracks your Magic: The Gathering card collection.\n'
             'Prices and card images provided by Scryfall (scryfall.com).',
         )
 
@@ -141,6 +161,7 @@ class MagicApp(tk.Tk):
         def on_prices_ready(prices):
             if self.collection.data is not None:
                 self.collection.updatePrice(edition, card, prices)
+                self.stats_frame.update_stats(self.collection)
 
         self.price_frame.update_prices(card_obj, self.edition,
                                        on_complete=on_prices_ready)
@@ -162,6 +183,7 @@ class MagicApp(tk.Tk):
         )
         self.quantity_frame.new_quant.set(0)
         self.collection_frame.update_collection_info(self, self.edition, self.card)
+        self.stats_frame.update_stats(self.collection)
 
 
 if __name__ == '__main__':
