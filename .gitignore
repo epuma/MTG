@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Generated SQLite database (rebuilt from AllSets-x.json on first run)
+cards.db
+
+# Image cache (generated at runtime by scryfall.py)
+cache/
+
+# Test output
+test_collection_output.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtual environments
+venv/
+.venv/
+env/

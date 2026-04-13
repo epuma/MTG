@@ -1,43 +1,51 @@
 import json
-from Edition import Edition
-from Card import Card
-from lib import clean_unicode
+
+from .Card import Card
+from .Edition import Edition
+from .lib import clean_unicode
 
 
-###Need to change flat cards into an edition on its own. That way I can call find card give an edition and if i dont specify it then it uses the default flattening. this might be better. 
+class Magic:
+    """
+    Loads the MTGJson database and exposes it as a dict of Edition objects
+    keyed by full set name.
 
-class Magic(object):
-	#This is a Class that will create a Magic object give the json database. It is a dictionary where the Key is the Code of the Edition and the Value is an Edition object.
+    Handles both MTGJson v2 (bare dict) and v5 (wrapped in {"data": ...}).
+    """
 
-	def __init__(self, json_file):
-		json_data_file = open(json_file)
-		json_data = json.load(json_data_file)
-		json_data_file.close()
+    def __init__(self, json_file):
+        with open(json_file, encoding='utf-8') as fh:
+            raw = json.load(fh)
 
-		flat_list = []
-		flat_cards = {}
-		self.data = {}
-		for k,v in json_data.iteritems():
-			self.data[clean_unicode(v["name"])] = Edition(v)
-			for stuff in v["cards"]:
-				flat_list.append(clean_unicode(stuff["name"]))
-				flat_cards[clean_unicode(stuff["name"])] = Card(stuff)
-		self.flatList = sorted(list(set(flat_list)))
-		self.flatCards = flat_cards
+        # MTGJson v5 wraps everything in {"data": {...}, "meta": {...}}
+        json_data = raw.get('data', raw)
 
-	#prints Set names and releaseDates
-	def __str__(self):
-		d = {}
-		for k,v in self.data.iteritems():
-			d[clean_unicode(v.name)] = v.releaseDate
-		sorted_d = sorted(d, key=lambda key: d[key])
+        flat_list = []
+        flat_cards = {}
+        self.data = {}
 
-		result = ""
-		for item in sorted_d:
-			result += item + " " + d[item] + '\n'
-		return result
+        for _code, set_obj in json_data.items():
+            edition_name = clean_unicode(set_obj['name'])
+            edition = Edition(set_obj)
+            self.data[edition_name] = edition
+            for card_data in set_obj.get('cards', []):
+                name = clean_unicode(card_data['name'])
+                flat_list.append(name)
+                flat_cards[name] = Card(card_data)
 
-	#When called this method will ask for user input, if Card is found then its information will be printed, otherwise it will tell you to try again
-	def findCard(self, search):
-		return self.flatCards.get(search)
-    
+        self.flatList = sorted(set(flat_list))
+        self.flatCards = flat_cards
+
+    def __str__(self):
+        editions = {
+            clean_unicode(v.name): getattr(v, 'releaseDate', '')
+            for v in self.data.values()
+        }
+        lines = [
+            f"{name}  {date}"
+            for name, date in sorted(editions.items(), key=lambda x: x[1])
+        ]
+        return '\n'.join(lines)
+
+    def findCard(self, name):
+        return self.flatCards.get(name)

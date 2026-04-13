@@ -1,100 +1,210 @@
-from Magic import Magic
-import json
-import io
+import csv
 import datetime
-
-class Collection():
-
-	def __init__(self):
-		self.data = None
-
-	def __str__(self):
-		result = ""
-		total = 0
-		for k,v in self.data.iteritems():
-			result += '\n' + k + '\n'
-			for key, value in v.iteritems():
-				result += key + ': ' + str(value['quantity']) + '\n'
-				total += value['quantity']
-		result += 'Total Number of Cards: ' + str(total)
-		return result
-
-	def load(self, fileName):
-		json_data_file = open(fileName)
-		json_data = json.load(json_data_file)
-		json_data_file.close()
-
-		self.data = json_data
-
-	def save(self, fileName):
-		with open(fileName, 'w') as outfile:
-			json.dump(self.data, outfile)
-
-	def save_close(self, fileName):
-		with open(fileName, 'w') as outfile:
-			json.dump(self.data, outfile)
-		self.data = None
-
-	def newCollection(self, magic_obj, fileName = 'untitledCollection.json'):
-		b = {}
-		for sets in magic_obj.data.keys():
-			b[sets] = {}
-			for k,v in magic_obj.data[sets].data.iteritems():
-				b[sets].update({k: {'quantity' : 0, 'price' : ['N/A', 'N/A', 'N/A'], 'last_date' : '', 'notes' : ''}})
-
-		with open(fileName, 'w') as outfile:
-			json.dump(b, outfile)
-
-	def updateCollection(self, magic_obj):
-		for sets in magic_obj.data.keys():
-			if sets not in self.data.keys():
-				self.data[sets] = {}
-				for k,v in magic_obj.data[sets].data.iteritems():
-					self.data[sets].update({k: {'quantity' : 0, 'price' : ['N/A', 'N/A', 'N/A'], 'last_date' : '', 'notes' : ''}})
-				print 'Collection Updated'
-
-	def getQuantity(self, edition, card):
-		return self.data[edition][card]['quantity']
-	
-	def getPrice(self, edition, card):
-		return self.data[edition][card]['price']
-	
-	def getDateUpdated(self, edition, card):
-		return self.data[edition][card]['last_date']
-	
-	def getNotes(self, edition, card):
-		return self.data[edition][card]['notes']
-
-	def updateQuantity(self, edition, card, quantity):
-		self.data[edition][card]['quantity'] = quantity
-
-	def updatePrice(self, edition, card, price):
-		self.data[edition][card]['price'] = price
-		self.data[edition][card]['last_date'] = datetime.datetime.now().strftime("%B %d, %Y %I:%M%p")
-
-	def updateNotes(self, edition, card, notes):
-		self.data[edition][card]['notes'] = notes
-
-	def getTotalQuantity(self):
-		total = 0
-		for k,v in self.data.iteritems():
-			for key, value in v.iteritems():
-				total += value['quantity']
-		return total
-
-	def getTotalPrice(self):
-		total_price = [0,0,0]
-		for k,v in self.data.iteritems():
-			for key, value in v.iteritems():
-				for n in [0, 1, 2]:
-					if value['price'][n] == 'N/A':
-						total_price[n] += 0
-					else:
-						total_price[n] += value['quantity']*float(value['price'][n])
-		return total_price
+import json
 
 
+class Collection:
+    """
+    Manages a user's card collection stored as a JSON file.
 
+    Per-card structure:
+        {
+            "quantity":      int,
+            "price":         [usd, usd_foil, tix],
+            "price_history": [{"date": str, "prices": [str, str, str]}, ...],
+            "last_date":     str,
+            "notes":         str
+        }
 
+    price_history stores up to 10 snapshots (newest first) for owned cards
+    (quantity > 0) to avoid bloating the file with zero-quantity cards.
+    """
 
+    def __init__(self):
+        self.data = None
 
+    # ------------------------------------------------------------------ I/O
+
+    def load(self, file_name):
+        with open(file_name, encoding='utf-8') as fh:
+            self.data = json.load(fh)
+
+    def save(self, file_name):
+        with open(file_name, 'w', encoding='utf-8') as fh:
+            json.dump(self.data, fh)
+
+    def save_close(self, file_name):
+        self.save(file_name)
+        self.data = None
+
+    def import_csv(self, file_name: str) -> tuple:
+        """
+        Import quantities and notes from a previously exported CSV.
+        Only updates cards that already exist in the collection.
+        Returns (imported_count, skipped_count).
+        """
+        imported = skipped = 0
+        with open(file_name, newline='', encoding='utf-8') as fh:
+            reader = csv.DictReader(fh)
+            for row in reader:
+                edition = row.get('Edition', '').strip()
+                card    = row.get('Card', '').strip()
+                notes   = row.get('Notes', '').strip()
+                try:
+                    qty = int(row.get('Quantity', 0))
+                except (ValueError, TypeError):
+                    qty = 0
+                if edition in self.data and card in self.data[edition]:
+                    self.data[edition][card]['quantity'] = qty
+                    if notes:
+                        self.data[edition][card]['notes'] = notes
+                    imported += 1
+                else:
+                    skipped += 1
+        return imported, skipped
+
+    def record_value_snapshot(self):
+        """
+        Append today's total market/foil/tix value to the collection-level
+        history (keyed '_value_history').  Updates in-place if an entry for
+        today already exists.  Keeps up to 90 entries.
+        """
+        totals  = self.getTotalPrice()
+        today   = datetime.date.today().isoformat()
+        history = self.data.setdefault('_value_history', [])
+        entry   = {'date': today,
+                   'market': round(totals[0], 2),
+                   'foil':   round(totals[1], 2),
+                   'tix':    round(totals[2], 2)}
+        if history and history[0].get('date') == today:
+            history[0] = entry
+        else:
+            history.insert(0, entry)
+            self.data['_value_history'] = history[:90]
+
+    def get_value_history(self) -> list:
+        """Return list of {date, market, foil, tix} dicts, newest first."""
+        return self.data.get('_value_history', [])
+
+    def export_csv(self, file_name):
+        """Export owned cards (quantity > 0) to a CSV file."""
+        with open(file_name, 'w', newline='', encoding='utf-8') as fh:
+            writer = csv.writer(fh)
+            writer.writerow([
+                'Edition', 'Card', 'Quantity',
+                'Market (USD)', 'Foil (USD)', 'MTGO (TIX)',
+                'Last Updated', 'Notes',
+            ])
+            for edition_name, cards in sorted(self.data.items()):
+                for card_name, info in sorted(cards.items()):
+                    if info['quantity'] > 0:
+                        writer.writerow([
+                            edition_name, card_name, info['quantity'],
+                            info['price'][0], info['price'][1], info['price'][2],
+                            info['last_date'], info['notes'],
+                        ])
+
+    # ----------------------------------------------------------- Construction
+
+    def newCollection(self, magic_obj, file_name='untitledCollection.json'):
+        b = {}
+        for edition_name, edition in magic_obj.data.items():
+            b[edition_name] = {
+                card_name: {
+                    'quantity': 0, 'price': ['N/A', 'N/A', 'N/A'],
+                    'price_history': [], 'last_date': '', 'notes': '',
+                }
+                for card_name in edition.data
+            }
+        with open(file_name, 'w', encoding='utf-8') as fh:
+            json.dump(b, fh)
+
+    def updateCollection(self, magic_obj):
+        for edition_name, edition in magic_obj.data.items():
+            if edition_name not in self.data:
+                self.data[edition_name] = {}
+            for card_name in edition.data:
+                if card_name not in self.data[edition_name]:
+                    self.data[edition_name][card_name] = {
+                        'quantity': 0, 'price': ['N/A', 'N/A', 'N/A'],
+                        'price_history': [], 'last_date': '', 'notes': '',
+                    }
+        print('Collection updated.')
+
+    # ------------------------------------------------------------ Accessors
+
+    def getQuantity(self, edition, card):
+        return self.data[edition][card]['quantity']
+
+    def getPrice(self, edition, card):
+        return self.data[edition][card]['price']
+
+    def getDateUpdated(self, edition, card):
+        return self.data[edition][card]['last_date']
+
+    def getNotes(self, edition, card):
+        return self.data[edition][card]['notes']
+
+    def getPriceHistory(self, edition, card):
+        """Return list of {date, prices} dicts (newest first, max 10)."""
+        return self.data[edition][card].get('price_history', [])
+
+    # ------------------------------------------------------------ Mutators
+
+    def updateQuantity(self, edition, card, quantity):
+        self.data[edition][card]['quantity'] = quantity
+
+    def updatePrice(self, edition, card, price):
+        entry = self.data[edition][card]
+        now   = datetime.datetime.now().strftime('%b %d %Y %I:%M %p')
+
+        # Only track history for owned cards to avoid JSON bloat
+        if entry.get('quantity', 0) > 0:
+            history = entry.get('price_history', [])
+            history.insert(0, {'date': now, 'prices': list(price)})
+            entry['price_history'] = history[:10]
+
+        entry['price']     = list(price)
+        entry['last_date'] = datetime.datetime.now().strftime('%B %d, %Y %I:%M %p')
+
+    def updateNotes(self, edition, card, notes):
+        self.data[edition][card]['notes'] = notes
+
+    # ------------------------------------------------------------ Aggregates
+
+    def getTotalQuantity(self):
+        return sum(
+            card['quantity']
+            for edition in self.data.values()
+            for card in edition.values()
+        )
+
+    def getUniqueOwned(self):
+        return sum(
+            1
+            for edition in self.data.values()
+            for card in edition.values()
+            if card['quantity'] > 0
+        )
+
+    def getTotalPrice(self):
+        total = [0.0, 0.0, 0.0]
+        for edition in self.data.values():
+            for card in edition.values():
+                qty = card['quantity']
+                for i in range(3):
+                    p = card['price'][i]
+                    if p != 'N/A':
+                        total[i] += qty * float(p)
+        return total
+
+    def __str__(self):
+        lines = []
+        total = 0
+        for edition_name, cards in self.data.items():
+            lines.append(f'\n{edition_name}')
+            for card_name, info in cards.items():
+                lines.append(f"  {card_name}: {info['quantity']}")
+                total += info['quantity']
+        lines.append(f'\nTotal cards: {total}')
+        return '\n'.join(lines)
