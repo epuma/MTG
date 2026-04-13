@@ -26,6 +26,8 @@ class CreateMenu(Menu):
 
         # ── Help ──────────────────────────────────────────────────────────
         helpmenu = Menu(self, tearoff=0)
-        helpmenu.add_command(label='Keyboard Shortcuts', command=root.show_shortcuts)
-        helpmenu.add_command(label='About…',             command=root.show_about)
+        helpmenu.add_command(label='Keyboard Shortcuts',  command=root.show_shortcuts)
+        helpmenu.add_command(label='About…',              command=root.show_about)
+        helpmenu.add_separator()
+        helpmenu.add_command(label='Rebuild Database…',   command=root.rebuild_database)
         self.add_cascade(label='Help', menu=helpmenu)

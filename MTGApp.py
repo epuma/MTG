@@ -90,6 +90,11 @@ class MagicApp(tk.Tk):
         self.quantity_frame        = QuantityFrame(self)
         self.stats_frame           = StatsFrame(self)
 
+        # Ensure edition/card are always defined even before the user
+        # presses Enter — prevents AttributeError in file-open handlers.
+        self.edition = self.search_frame.edition_variable.get()
+        self.card    = self.search_frame.card_variable.get()
+
         self._bind_keys()
         self.bind('<Return>', self.update_ui)
 
@@ -237,6 +242,28 @@ class MagicApp(tk.Tk):
             'Tracks your Magic: The Gathering card collection.\n'
             'Card data, images and prices provided by Scryfall (scryfall.com).',
         )
+
+    def rebuild_database(self):
+        if not messagebox.askyesno(
+            'Rebuild Database',
+            'This will rebuild cards.db from AllSets-x.json.\n'
+            'It may take up to a minute on first build.\n\n'
+            'The app will need to restart to use the new data.\n\n'
+            'Continue?',
+        ):
+            return
+        try:
+            if os.path.exists(DB_SQLITE):
+                os.remove(DB_SQLITE)
+            import build_db
+            build_db.build(DB_JSON, DB_SQLITE)
+            messagebox.showinfo(
+                'Rebuild complete',
+                'cards.db rebuilt successfully.\n'
+                'Please restart the app to load the updated data.',
+            )
+        except Exception as exc:
+            messagebox.showerror('Rebuild failed', str(exc))
 
     def show_shortcuts(self):
         messagebox.showinfo(
