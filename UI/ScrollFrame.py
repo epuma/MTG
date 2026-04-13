@@ -37,6 +37,9 @@ class ScrollFrame(Frame):
         self.configure(width=self.img_wt, height=self.img_ht)
         self.grid(row=2, column=1, padx=10, pady=10, sticky=N)
 
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
         self.canvas = Canvas(self)
         self.info_frame = Frame(self.canvas)
         self.scrollbar = _AutoScrollbar(self)
@@ -44,7 +47,7 @@ class ScrollFrame(Frame):
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
         self.scrollbar.grid(row=0, column=1, sticky=N + S)
-        self.canvas.grid(row=0, column=0)
+        self.canvas.grid(row=0, column=0, sticky='NSEW')
         self.canvas.create_window((0, 0), window=self.info_frame, anchor='nw')
 
         self.info_frame.bind('<Configure>', self._on_frame_configure)

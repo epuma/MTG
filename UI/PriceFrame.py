@@ -14,13 +14,14 @@ class PriceFrame(Frame):
 
     def __init__(self, root):
         super().__init__(root)
-        self.grid(row=1, column=0)
+        self.grid(row=1, column=0, padx=10, pady=(0, 5), sticky='N')
+        self.columnconfigure(1, weight=1, minsize=70)
 
         self.prices = ['N/A', 'N/A', 'N/A']
 
-        Label(self, text='Market (USD)').grid(row=0, column=0, sticky=W)
-        Label(self, text='Foil (USD)').grid(  row=1, column=0, sticky=W)
-        Label(self, text='MTGO (TIX)').grid(  row=2, column=0, sticky=W)
+        Label(self, text='Market (USD)').grid(row=0, column=0, sticky=W, padx=(0, 8))
+        Label(self, text='Foil (USD)').grid(  row=1, column=0, sticky=W, padx=(0, 8))
+        Label(self, text='MTGO (TIX)').grid(  row=2, column=0, sticky=W, padx=(0, 8))
 
         self._market = Label(self, text='N/A')
         self._foil   = Label(self, text='N/A')

@@ -199,6 +199,8 @@ class MagicApp(tk.Tk):
             return
         self._scryfall_win = ScryfallSearchFrame(self)
         self._scryfall_win.set_on_select(self._on_scryfall_card_selected)
+        self._scryfall_win.protocol(
+            'WM_DELETE_WINDOW', lambda: self._close_singleton('_scryfall_win'))
 
     def open_collection_grid(self):
         if self.collection.data is None:
@@ -212,6 +214,14 @@ class MagicApp(tk.Tk):
             self, self.collection, self.mtg_object,
             on_card_select=self._on_grid_card_selected,
         )
+        self._grid_win.protocol(
+            'WM_DELETE_WINDOW', lambda: self._close_singleton('_grid_win'))
+
+    def _close_singleton(self, attr: str):
+        win = getattr(self, attr, None)
+        if win:
+            win.destroy()
+        setattr(self, attr, None)
 
     # ────────────────────────────────────────── callbacks from child windows
 
@@ -372,6 +382,9 @@ class MagicApp(tk.Tk):
         edition, card = self.edition, self.card   # capture for async closure
 
         def on_prices_ready(prices):
+            # Discard if the user navigated to a different card while fetching
+            if self.edition != edition or self.card != card:
+                return
             if self.collection.data is not None:
                 self.collection.updatePrice(edition, card, prices)
                 self.stats_frame.update_stats(self.collection)
@@ -388,6 +401,7 @@ class MagicApp(tk.Tk):
             self.edition, self.card,
             self.collection_frame.notes.get('1.0', tk.END),
         )
+        self.collection_frame.update_collection_info(self, self.edition, self.card)
 
     def update_quantity(self, _event=None):
         self.collection.updateQuantity(

@@ -52,7 +52,6 @@ class CollectionFrame(Frame):
             self.notes.config(state='normal')
             self.notes.delete('1.0', END)
             self.notes.insert('1.0', root.collection.getNotes(edition, card))
-            self.notes.focus_set()
             self.save_button.config(state='normal')
 
     # ---------------------------------------------------------------- private
