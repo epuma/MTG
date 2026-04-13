@@ -249,6 +249,26 @@ def fetch_tk_image(card_name: str, set_code: str, width: int, height: int) -> Im
     return ImageTk.PhotoImage(pil_image) if pil_image else None
 
 
+def get_bulk_data_info() -> dict | None:
+    """
+    Query the Scryfall /bulk-data endpoint and return info for the
+    'default_cards' export: {download_uri, updated_at, size}.
+    Returns None if the endpoint is unreachable or the type isn't found.
+    Safe to call from any thread.
+    """
+    data = _get_json(f"{BASE_URL}/bulk-data")
+    if not data:
+        return None
+    for entry in data.get('data', []):
+        if entry.get('type') == 'default_cards':
+            return {
+                'download_uri': entry.get('download_uri', ''),
+                'updated_at':   entry.get('updated_at', ''),
+                'size':         entry.get('size', 0),
+            }
+    return None
+
+
 def is_internet_on() -> bool:
     """Quick connectivity check against the Scryfall API."""
     try:

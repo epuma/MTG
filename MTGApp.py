@@ -2,6 +2,7 @@
 """MTG Collection Manager — main application entry point."""
 
 import os
+import threading
 import tkinter as tk
 from tkinter import Entry, messagebox
 from tkinter.filedialog import askopenfilename, asksaveasfilename
@@ -55,8 +56,9 @@ def _load_database():
 class MagicApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self._scryfall_win = None   # singleton search window
-        self._grid_win     = None   # singleton grid window
+        self._scryfall_win     = None   # singleton search window
+        self._grid_win         = None   # singleton grid window
+        self._update_in_progress = False
         self._init_ui()
 
     # ────────────────────────────────────────── setup
@@ -101,6 +103,10 @@ class MagicApp(tk.Tk):
         self.update()
         self.geometry(f'{self.winfo_screenwidth()}x{self.winfo_height()}+0+0')
         self.minsize(self.winfo_screenwidth(), self.winfo_height())
+
+        # Check for a newer Scryfall card database in the background.
+        # Delayed 3 s so the main window is fully painted before any dialog.
+        self.after(3000, self._start_update_check)
 
     def _bind_keys(self):
         # File operations
@@ -244,26 +250,116 @@ class MagicApp(tk.Tk):
         )
 
     def rebuild_database(self):
+        if self._update_in_progress:
+            messagebox.showwarning('Update in progress',
+                                   'A database update is already running.')
+            return
         if not messagebox.askyesno(
             'Rebuild Database',
-            'This will rebuild cards.db from AllSets-x.json.\n'
-            'It may take up to a minute on first build.\n\n'
+            'This will download the latest card data from Scryfall\n'
+            '(~100 MB) and rebuild cards.db.\n\n'
+            'Falls back to the local AllSets-x.json if offline.\n\n'
             'The app will need to restart to use the new data.\n\n'
             'Continue?',
         ):
             return
+        self._update_in_progress = True
+        threading.Thread(target=self._do_rebuild, daemon=True).start()
+
+    def _do_rebuild(self):
+        """Background thread for Help → Rebuild Database."""
+        import build_db
+        tmp_db = DB_SQLITE + '.new'
         try:
+            info = scryfall.get_bulk_data_info()
+            if info:
+                build_db.build_from_scryfall(
+                    info['download_uri'], tmp_db, info['updated_at'])
+            else:
+                build_db.build(DB_JSON, tmp_db)
             if os.path.exists(DB_SQLITE):
                 os.remove(DB_SQLITE)
-            import build_db
-            build_db.build(DB_JSON, DB_SQLITE)
-            messagebox.showinfo(
+            os.rename(tmp_db, DB_SQLITE)
+            self.after(0, lambda: messagebox.showinfo(
                 'Rebuild complete',
                 'cards.db rebuilt successfully.\n'
                 'Please restart the app to load the updated data.',
-            )
+            ))
         except Exception as exc:
-            messagebox.showerror('Rebuild failed', str(exc))
+            self.after(0, lambda e=exc: messagebox.showerror(
+                'Rebuild failed', str(e)))
+        finally:
+            self._update_in_progress = False
+            try:
+                if os.path.exists(tmp_db):
+                    os.remove(tmp_db)
+            except Exception:
+                pass
+
+    # ────────────────────────────────────── auto-update check
+
+    def _start_update_check(self):
+        threading.Thread(target=self._check_db_update, daemon=True).start()
+
+    def _check_db_update(self):
+        """
+        Background thread: compare Scryfall's latest export timestamp against
+        what's recorded in db_meta.  Prompts on the main thread if newer.
+        """
+        import build_db
+        info = scryfall.get_bulk_data_info()
+        if not info or not info.get('download_uri'):
+            return
+        meta         = build_db.get_db_meta(DB_SQLITE)
+        last_updated = meta.get('last_updated', '')
+        # ISO 8601 strings are lexicographically ordered — safe to compare as str
+        if info['updated_at'] > last_updated:
+            size_mb = round(info['size'] / 1_048_576)
+            self.after(0, self._prompt_update,
+                       info['download_uri'], info['updated_at'], size_mb)
+
+    def _prompt_update(self, download_uri: str, updated_at: str, size_mb: int):
+        """Main thread: ask user whether to download the newer card database."""
+        if self._update_in_progress:
+            return
+        date_str = updated_at[:10]   # trim to YYYY-MM-DD
+        if messagebox.askyesno(
+            'Card Database Update Available',
+            f'Scryfall has newer card data ({date_str}, ~{size_mb} MB).\n\n'
+            'Download and rebuild now?\n'
+            '(The app will need to restart to use the new data.)',
+        ):
+            self._update_in_progress = True
+            threading.Thread(
+                target=self._do_db_update,
+                args=(download_uri, updated_at),
+                daemon=True,
+            ).start()
+
+    def _do_db_update(self, download_uri: str, updated_at: str):
+        """Background thread: download Scryfall bulk data and rebuild cards.db."""
+        import build_db
+        tmp_db = DB_SQLITE + '.new'
+        try:
+            build_db.build_from_scryfall(download_uri, tmp_db, updated_at)
+            if os.path.exists(DB_SQLITE):
+                os.remove(DB_SQLITE)
+            os.rename(tmp_db, DB_SQLITE)
+            self.after(0, lambda: messagebox.showinfo(
+                'Update Complete',
+                'Card database updated successfully.\n'
+                'Please restart the app to load the new data.',
+            ))
+        except Exception as exc:
+            self.after(0, lambda e=exc: messagebox.showerror(
+                'Update Failed', str(e)))
+        finally:
+            self._update_in_progress = False
+            try:
+                if os.path.exists(tmp_db):
+                    os.remove(tmp_db)
+            except Exception:
+                pass
 
     def show_shortcuts(self):
         messagebox.showinfo(
