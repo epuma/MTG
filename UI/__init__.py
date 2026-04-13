@@ -10,3 +10,4 @@ from .QuantityFrame import QuantityFrame
 from .StatsFrame import StatsFrame
 from .ScryfallSearchFrame import ScryfallSearchFrame
 from .CollectionGridView import CollectionGridView
+from .CollectionValueHistory import CollectionValueHistory

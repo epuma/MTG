@@ -45,10 +45,11 @@ class PriceFrame(Frame):
             daemon=True,
         ).start()
 
-    def set_prices_direct(self, prices: list):
-        """Display a pre-fetched price list without making any API call."""
+    def set_prices_direct(self, prices: list, cached: bool = False):
+        """Display a pre-fetched price list without making any API call.
+        Pass cached=True to append ' *' to each value (offline fallback)."""
         self.prices = prices
-        self._set_labels(prices)
+        self._set_labels(prices, cached=cached)
 
     # ---------------------------------------------------------------- private
 
@@ -62,11 +63,15 @@ class PriceFrame(Frame):
         if on_complete:
             on_complete(prices)
 
-    def _set_labels(self, prices: list):
+    def _set_labels(self, prices: list, cached: bool = False):
+        tag = ' *' if cached else ''
         market, foil, mtgo = prices
-        self._market.config(text=f'${market}' if market not in ('N/A', '…') else market)
-        self._foil.config(  text=f'${foil}'   if foil   not in ('N/A', '…') else foil)
-        self._mtgo.config(  text=mtgo)
+        self._market.config(
+            text=f'${market}{tag}' if market not in ('N/A', '…') else market)
+        self._foil.config(
+            text=f'${foil}{tag}'   if foil   not in ('N/A', '…') else foil)
+        self._mtgo.config(
+            text=f'{mtgo}{tag}'    if mtgo   not in ('N/A', '…') else mtgo)
 
 
 def _split_card_name(card_obj) -> str:

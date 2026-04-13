@@ -37,6 +37,55 @@ class Collection:
         self.save(file_name)
         self.data = None
 
+    def import_csv(self, file_name: str) -> tuple:
+        """
+        Import quantities and notes from a previously exported CSV.
+        Only updates cards that already exist in the collection.
+        Returns (imported_count, skipped_count).
+        """
+        imported = skipped = 0
+        with open(file_name, newline='', encoding='utf-8') as fh:
+            reader = csv.DictReader(fh)
+            for row in reader:
+                edition = row.get('Edition', '').strip()
+                card    = row.get('Card', '').strip()
+                notes   = row.get('Notes', '').strip()
+                try:
+                    qty = int(row.get('Quantity', 0))
+                except (ValueError, TypeError):
+                    qty = 0
+                if edition in self.data and card in self.data[edition]:
+                    self.data[edition][card]['quantity'] = qty
+                    if notes:
+                        self.data[edition][card]['notes'] = notes
+                    imported += 1
+                else:
+                    skipped += 1
+        return imported, skipped
+
+    def record_value_snapshot(self):
+        """
+        Append today's total market/foil/tix value to the collection-level
+        history (keyed '_value_history').  Updates in-place if an entry for
+        today already exists.  Keeps up to 90 entries.
+        """
+        totals  = self.getTotalPrice()
+        today   = datetime.date.today().isoformat()
+        history = self.data.setdefault('_value_history', [])
+        entry   = {'date': today,
+                   'market': round(totals[0], 2),
+                   'foil':   round(totals[1], 2),
+                   'tix':    round(totals[2], 2)}
+        if history and history[0].get('date') == today:
+            history[0] = entry
+        else:
+            history.insert(0, entry)
+            self.data['_value_history'] = history[:90]
+
+    def get_value_history(self) -> list:
+        """Return list of {date, market, foil, tix} dicts, newest first."""
+        return self.data.get('_value_history', [])
+
     def export_csv(self, file_name):
         """Export owned cards (quantity > 0) to a CSV file."""
         with open(file_name, 'w', newline='', encoding='utf-8') as fh:

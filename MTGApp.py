@@ -13,10 +13,12 @@ from UI import (
     CreateMenu, SplashScreen, SearchFrame, PriceFrame,
     ImageFrame, ScrollFrame, CollectionFrame, CollectionNameFrame,
     QuantityFrame, StatsFrame, ScryfallSearchFrame, CollectionGridView,
+    CollectionValueHistory,
 )
 
 DB_JSON   = 'JSON Files/AllSets-x.json'
 DB_SQLITE = 'cards.db'
+APP_TITLE = "Eric's Magic App"
 
 
 # ──────────────────────────────────────────────── startup helpers
@@ -56,9 +58,12 @@ def _load_database():
 class MagicApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self._scryfall_win     = None   # singleton search window
-        self._grid_win         = None   # singleton grid window
+        self._scryfall_win       = None   # singleton search window
+        self._grid_win           = None   # singleton grid window
+        self._value_history_win  = None   # singleton value history window
         self._update_in_progress = False
+        self._current_path: str | None = None
+        self._dirty = False
         self._init_ui()
 
     # ────────────────────────────────────────── setup
@@ -80,6 +85,8 @@ class MagicApp(tk.Tk):
 
         splash.destroy()
         self.deiconify()
+        self.wm_title(APP_TITLE)
+        self.protocol('WM_DELETE_WINDOW', self._on_close)
 
         self.config(menu=CreateMenu(self))
 
@@ -121,6 +128,35 @@ class MagicApp(tk.Tk):
         self.bind('<Alt-Up>',    self._prev_edition)
         self.bind('<Alt-Down>',  self._next_edition)
 
+    # ────────────────────────────────────────── dirty / title helpers
+
+    def _mark_dirty(self):
+        if not self._dirty:
+            self._dirty = True
+            self.wm_title(APP_TITLE + ' *')
+
+    def _clear_dirty(self):
+        self._dirty = False
+        self.wm_title(APP_TITLE)
+
+    def _confirm_discard(self) -> bool:
+        """Return True if it's safe to abandon the current collection."""
+        if not self._dirty or self.collection.data is None:
+            return True
+        answer = messagebox.askyesnocancel(
+            'Unsaved changes',
+            'You have unsaved changes. Save before continuing?',
+        )
+        if answer is None:   # Cancel
+            return False
+        if answer:           # Yes — save, then continue
+            self.save_file()
+        return True          # No — discard and continue
+
+    def _on_close(self):
+        if self._confirm_discard():
+            self.destroy()
+
     # ────────────────────────────────────────── keyboard navigation
 
     def _prev_card(self, _event=None):
@@ -142,35 +178,92 @@ class MagicApp(tk.Tk):
     # ────────────────────────────────────────── file actions
 
     def new_file(self):
+        if not self._confirm_discard():
+            return
         path = asksaveasfilename(defaultextension='.json')
         if not path:
             return
         self.collection.newCollection(self.mtg_object, path)
         self.collection.load(path)
+        self._current_path = path
+        self._clear_dirty()
         self._refresh_collection_ui(path)
 
     def open_file(self):
+        if not self._confirm_discard():
+            return
         path = askopenfilename()
         if not path:
             return
         self.collection.load(path)
         self.collection.updateCollection(self.mtg_object)
+        self._current_path = path
+        self._clear_dirty()
         self._refresh_collection_ui(path)
 
     def save_file(self):
+        """Save to current path silently; prompt for a path if none is set."""
+        if self.collection.data is None:
+            return
+        if self._current_path:
+            try:
+                self.collection.save(self._current_path)
+                self._clear_dirty()
+            except Exception as exc:
+                messagebox.showerror('Save failed', str(exc))
+        else:
+            self.save_as_file()
+
+    def save_as_file(self):
+        """Always prompt for a new save path."""
+        if self.collection.data is None:
+            return
         path = asksaveasfilename(defaultextension='.json')
         if path:
             self.collection.save(path)
+            self._current_path = path
+            self.collection_name_frame.update_name(os.path.basename(path))
+            self._clear_dirty()
 
     def save_close_file(self):
-        path = asksaveasfilename(defaultextension='.json')
-        if not path:
+        if self.collection.data is None:
             return
-        self.collection.save_close(path)
+        if self._current_path:
+            self.collection.save(self._current_path)
+        else:
+            path = asksaveasfilename(defaultextension='.json')
+            if not path:
+                return
+            self.collection.save(path)
+        self.collection.data = None
+        self._current_path = None
+        self._clear_dirty()
         self.collection_name_frame.update_name('')
         self.collection_frame.update_collection_info(self, self.edition, self.card)
         self.quantity_frame.change_state(self)
         self.stats_frame.update_stats(self.collection)
+
+    def import_collection(self):
+        if self.collection.data is None:
+            messagebox.showwarning('No collection open',
+                                   'Please open a collection before importing.')
+            return
+        path = askopenfilename(
+            filetypes=[('CSV files', '*.csv'), ('All files', '*.*')],
+        )
+        if not path:
+            return
+        try:
+            imported, skipped = self.collection.import_csv(path)
+            self._mark_dirty()
+            self.collection_frame.update_collection_info(self, self.edition, self.card)
+            self.quantity_frame.change_state(self)
+            self.stats_frame.update_stats(self.collection)
+            detail = f' ({skipped} skipped — not found in database)' if skipped else ''
+            messagebox.showinfo('Import complete',
+                                f'Imported {imported} cards{detail}.')
+        except Exception as exc:
+            messagebox.showerror('Import failed', str(exc))
 
     def export_collection(self):
         if self.collection.data is None:
@@ -216,6 +309,19 @@ class MagicApp(tk.Tk):
         )
         self._grid_win.protocol(
             'WM_DELETE_WINDOW', lambda: self._close_singleton('_grid_win'))
+
+    def open_value_history(self):
+        if self.collection.data is None:
+            messagebox.showwarning('No collection open',
+                                   'Please open a collection first.')
+            return
+        if self._value_history_win and self._value_history_win.winfo_exists():
+            self._value_history_win.lift()
+            return
+        self._value_history_win = CollectionValueHistory(self, self.collection)
+        self._value_history_win.protocol(
+            'WM_DELETE_WINDOW',
+            lambda: self._close_singleton('_value_history_win'))
 
     def _close_singleton(self, attr: str):
         win = getattr(self, attr, None)
@@ -385,9 +491,22 @@ class MagicApp(tk.Tk):
             # Discard if the user navigated to a different card while fetching
             if self.edition != edition or self.card != card:
                 return
+            # Offline fallback: show last stored price when Scryfall unreachable
+            if all(p == 'N/A' for p in prices) and self.collection.data is not None:
+                stored = self.collection.getPrice(edition, card)
+                if any(p != 'N/A' for p in stored):
+                    self.price_frame.set_prices_direct(stored, cached=True)
+                    return
             if self.collection.data is not None:
                 self.collection.updatePrice(edition, card, prices)
+                self.collection.record_value_snapshot()
                 self.stats_frame.update_stats(self.collection)
+                # Auto-save price data silently; prices are transient so no dirty flag
+                if self._current_path:
+                    try:
+                        self.collection.save(self._current_path)
+                    except Exception:
+                        pass
 
         self.price_frame.update_prices(card_obj, self.edition,
                                        on_complete=on_prices_ready)
@@ -401,6 +520,7 @@ class MagicApp(tk.Tk):
             self.edition, self.card,
             self.collection_frame.notes.get('1.0', tk.END),
         )
+        self._mark_dirty()
         self.collection_frame.update_collection_info(self, self.edition, self.card)
 
     def update_quantity(self, _event=None):
@@ -409,11 +529,11 @@ class MagicApp(tk.Tk):
             self.quantity_frame.new_quant.get(),
         )
         self.quantity_frame.new_quant.set(0)
+        self._mark_dirty()
         self.collection_frame.update_collection_info(self, self.edition, self.card)
         self.stats_frame.update_stats(self.collection)
 
 
 if __name__ == '__main__':
     app = MagicApp()
-    app.wm_title("Eric's Magic App")
     app.mainloop()
